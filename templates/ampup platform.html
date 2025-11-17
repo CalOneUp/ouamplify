@@ -7148,7 +7148,8 @@
                     
                     if (isCollapsed) {
                         section.classList.remove('collapsed');
-                        section.style.maxHeight = section.scrollHeight + 'px';
+                        // Use a large max-height value that CSS allows
+                        section.style.maxHeight = Math.max(section.scrollHeight, 5000) + 'px';
                         this.classList.add('expanded');
                         if (icon) icon.textContent = '▲';
                         if (textSpan && textSpan.textContent.includes('Show')) {
@@ -7156,7 +7157,8 @@
                         }
                     } else {
                         section.classList.add('collapsed');
-                        section.style.maxHeight = '0';
+                        // CSS will handle max-height: 0 with !important
+                        section.style.maxHeight = '';
                         this.classList.remove('expanded');
                         if (icon) icon.textContent = '▼';
                         if (textSpan && textSpan.textContent.includes('Hide')) {
@@ -8077,7 +8079,8 @@
                     
                     if (isCollapsed) {
                         section.classList.remove('collapsed');
-                        section.style.maxHeight = section.scrollHeight + 'px';
+                        // Use a large max-height value that CSS allows
+                        section.style.maxHeight = Math.max(section.scrollHeight, 5000) + 'px';
                         this.classList.add('expanded');
                         if (icon) icon.textContent = '▲';
                         if (textSpan && textSpan.textContent.includes('Show')) {
@@ -8087,7 +8090,8 @@
                         }
                     } else {
                         section.classList.add('collapsed');
-                        section.style.maxHeight = '0';
+                        // CSS will handle max-height: 0 with !important
+                        section.style.maxHeight = '';
                         this.classList.remove('expanded');
                         if (icon) icon.textContent = '▼';
                         if (textSpan && textSpan.textContent.includes('Hide')) {
