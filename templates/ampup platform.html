@@ -7120,53 +7120,64 @@
             
                     sidebarEl.innerHTML = sidebarHTML;
                     
+                    // Initialize toggle buttons after HTML is set
+                    setTimeout(function() {
+                        document.querySelectorAll('.toggle-button').forEach(button => {
+                            // Check if button already has a listener by checking for a data attribute
+                            if (button.dataset.listenerAttached === 'true') {
+                                return; // Skip if already has listener
+                            }
+                            
+                            // Mark as having listener attached
+                            button.dataset.listenerAttached = 'true';
+                            
+                            button.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                const targetId = this.dataset.target;
+                                if (!targetId) {
+                                    logger.warn('Toggle button missing data-target attribute');
+                                    return;
+                                }
+                                
+                                const section = document.getElementById(targetId);
+                                if (!section) {
+                                    logger.warn('Toggle target not found:', targetId);
+                                    return;
+                                }
+                                
+                                const isCollapsed = section.classList.contains('collapsed');
+                                const icon = this.querySelector('.icon');
+                                const textSpan = this.querySelector('span:first-child span:last-child');
+                                
+                                if (isCollapsed) {
+                                    section.classList.remove('collapsed');
+                                    // Use a large max-height value that CSS allows
+                                    section.style.maxHeight = Math.max(section.scrollHeight, 5000) + 'px';
+                                    this.classList.add('expanded');
+                                    if (icon) icon.textContent = '▲';
+                                    if (textSpan && textSpan.textContent.includes('Show')) {
+                                        textSpan.textContent = textSpan.textContent.replace('Show ', 'Hide ');
+                                    }
+                                } else {
+                                    section.classList.add('collapsed');
+                                    // CSS will handle max-height: 0 with !important
+                                    section.style.maxHeight = '';
+                                    this.classList.remove('expanded');
+                                    if (icon) icon.textContent = '▼';
+                                    if (textSpan && textSpan.textContent.includes('Hide')) {
+                                        textSpan.textContent = textSpan.textContent.replace('Hide ', 'Show ');
+                                    }
+                                }
+                            });
+                        });
+                    }, 10); // Small delay to ensure DOM is ready
+                    
                     // Add content-loaded animation
                     setTimeout(function() {
                         sidebarEl.classList.add('content-loaded');
                     }, 50);
                 }, 150); // Small delay to show skeleton
-            
-            // Re-initialize toggle buttons for the new content - remove old listeners first
-            document.querySelectorAll('.toggle-button').forEach(button => {
-                // Remove any existing listeners by cloning the button
-                const newButton = button.cloneNode(true);
-                button.parentNode.replaceChild(newButton, button);
-                
-                newButton.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const targetId = this.dataset.target;
-                    const section = document.getElementById(targetId);
-                    if (!section) {
-                        logger.warn('Toggle target not found:', targetId);
-                        return;
-                    }
-                    
-                    const isCollapsed = section.classList.contains('collapsed');
-                    const icon = this.querySelector('.icon');
-                    const textSpan = this.querySelector('span:first-child span:last-child');
-                    
-                    if (isCollapsed) {
-                        section.classList.remove('collapsed');
-                        // Use a large max-height value that CSS allows
-                        section.style.maxHeight = Math.max(section.scrollHeight, 5000) + 'px';
-                        this.classList.add('expanded');
-                        if (icon) icon.textContent = '▲';
-                        if (textSpan && textSpan.textContent.includes('Show')) {
-                            textSpan.textContent = textSpan.textContent.replace('Show ', 'Hide ');
-                        }
-                    } else {
-                        section.classList.add('collapsed');
-                        // CSS will handle max-height: 0 with !important
-                        section.style.maxHeight = '';
-                        this.classList.remove('expanded');
-                        if (icon) icon.textContent = '▼';
-                        if (textSpan && textSpan.textContent.includes('Hide')) {
-                            textSpan.textContent = textSpan.textContent.replace('Hide ', 'Show ');
-                        }
-                    }
-                });
-            });
             } catch(error) {
                 logger.error('Error in renderSidebar:', error);
                 logger.error('Stack:', error.stack);
@@ -8057,49 +8068,60 @@
                     participateBtn.addEventListener('click', handleParticipation);
                 }
             }
-            // Toggle button handlers - remove old listeners first to prevent duplicates
-            document.querySelectorAll('.toggle-button').forEach(button => {
-                // Remove any existing listeners by cloning the button
-                const newButton = button.cloneNode(true);
-                button.parentNode.replaceChild(newButton, button);
-                
-                newButton.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const targetId = this.dataset.target;
-                    const section = document.getElementById(targetId);
-                    if (!section) {
-                        logger.warn('Toggle target not found:', targetId);
-                        return;
+            // Toggle button handlers - use setTimeout to ensure DOM is ready
+            setTimeout(function() {
+                document.querySelectorAll('.toggle-button').forEach(button => {
+                    // Check if button already has a listener by checking for a data attribute
+                    if (button.dataset.listenerAttached === 'true') {
+                        return; // Skip if already has listener
                     }
                     
-                    const isCollapsed = section.classList.contains('collapsed');
-                    const icon = this.querySelector('.icon');
-                    const textSpan = this.querySelector('span:first-child span:last-child');
+                    // Mark as having listener attached
+                    button.dataset.listenerAttached = 'true';
                     
-                    if (isCollapsed) {
-                        section.classList.remove('collapsed');
-                        // Use a large max-height value that CSS allows
-                        section.style.maxHeight = Math.max(section.scrollHeight, 5000) + 'px';
-                        this.classList.add('expanded');
-                        if (icon) icon.textContent = '▲';
-                        if (textSpan && textSpan.textContent.includes('Show')) {
-                            textSpan.textContent = textSpan.textContent.replace('Show ', 'Hide ');
-                        } else if (textSpan && textSpan.textContent.includes('View All')) {
-                            textSpan.textContent = 'Hide';
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const targetId = this.dataset.target;
+                        if (!targetId) {
+                            logger.warn('Toggle button missing data-target attribute');
+                            return;
                         }
-                    } else {
-                        section.classList.add('collapsed');
-                        // CSS will handle max-height: 0 with !important
-                        section.style.maxHeight = '';
-                        this.classList.remove('expanded');
-                        if (icon) icon.textContent = '▼';
-                        if (textSpan && textSpan.textContent.includes('Hide')) {
-                            textSpan.textContent = textSpan.textContent.replace('Hide', 'View All');
+                        
+                        const section = document.getElementById(targetId);
+                        if (!section) {
+                            logger.warn('Toggle target not found:', targetId);
+                            return;
                         }
-                    }
+                        
+                        const isCollapsed = section.classList.contains('collapsed');
+                        const icon = this.querySelector('.icon');
+                        const textSpan = this.querySelector('span:first-child span:last-child');
+                        
+                        if (isCollapsed) {
+                            section.classList.remove('collapsed');
+                            // Use a large max-height value that CSS allows
+                            section.style.maxHeight = Math.max(section.scrollHeight, 5000) + 'px';
+                            this.classList.add('expanded');
+                            if (icon) icon.textContent = '▲';
+                            if (textSpan && textSpan.textContent.includes('Show')) {
+                                textSpan.textContent = textSpan.textContent.replace('Show ', 'Hide ');
+                            } else if (textSpan && textSpan.textContent.includes('View All')) {
+                                textSpan.textContent = 'Hide';
+                            }
+                        } else {
+                            section.classList.add('collapsed');
+                            // CSS will handle max-height: 0 with !important
+                            section.style.maxHeight = '';
+                            this.classList.remove('expanded');
+                            if (icon) icon.textContent = '▼';
+                            if (textSpan && textSpan.textContent.includes('Hide')) {
+                                textSpan.textContent = textSpan.textContent.replace('Hide', 'View All');
+                            }
+                        }
+                    });
                 });
-            });
+            }, 50);
             
             // Ensure archive is rendered
             if (typeof renderArchive === 'function') {
