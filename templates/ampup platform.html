@@ -4200,35 +4200,55 @@
                 <!-- Hero stats will be rendered here -->
             </div>
             
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
-                <!-- Main Content -->
-                <div class="lg:col-span-8 space-y-6">
-                    <!-- Active Campaign -->
-                    <section id="active-drop" class="mb-6">
-                        <!-- Campaign content rendered here -->
-                    </section>
-
-                    <!-- Past Campaigns -->
-                    <section id="drop-archive" class="mb-6">
-                        <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-xl md:text-2xl font-extrabold-heading">Past Campaigns</h3>
-                            <button class="toggle-button text-sm rounded-xl" data-target="archive-section">
-                                <span class="text-sm">View All</span>
-                                <span class="icon text-xs">▼</span>
-                            </button>
-                        </div>
-                        <div class="collapsible-section collapsed" id="archive-section">
-                            <div id="archive-log" class="space-y-4">
-                                <!-- History content rendered here -->
-                            </div>
-                        </div>
-                    </section>
+            <div class="space-y-6">
+                <!-- Active Campaign Section -->
+                <section id="active-drop" class="mb-6">
+                    <!-- Campaign content rendered here -->
+                </section>
+                
+                <!-- Campaigns Grid: Active and Past -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Active Campaigns Card -->
+                    <div id="active-campaigns-card" class="surface-card p-6">
+                        <!-- Will be rendered by renderActiveCampaigns -->
+                    </div>
+                    
+                    <!-- Past Campaigns Card -->
+                    <div id="past-campaigns-card" class="surface-card p-6">
+                        <!-- Will be rendered by renderPastCampaigns -->
+                    </div>
                 </div>
-
-                <!-- Sidebar: Quick Stats -->
-                <div class="lg:col-span-4 space-y-6" id="sidebar-content">
-                    <!-- Sidebar content rendered here -->
+                
+                <!-- Quick Stats & Leaderboard Row -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Quick Stats -->
+                    <div class="lg:col-span-5 space-y-6" id="dashboard-quick-stats">
+                        <!-- Quick stats will be rendered here -->
+                    </div>
+                    
+                    <!-- Leaderboard Preview -->
+                    <div class="lg:col-span-7">
+                        <div id="dashboard-leaderboard-preview" class="surface-card p-6">
+                            <!-- Leaderboard preview will be rendered here -->
+                        </div>
+                    </div>
                 </div>
+                
+                <!-- Past Campaigns Archive (Legacy section, kept for compatibility) -->
+                <section id="drop-archive" class="mb-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl md:text-2xl font-extrabold-heading">All Past Campaigns</h3>
+                        <button class="toggle-button text-sm rounded-xl" data-target="archive-section">
+                            <span class="text-sm">View All</span>
+                            <span class="icon text-xs">▼</span>
+                        </button>
+                    </div>
+                    <div class="collapsible-section collapsed" id="archive-section">
+                        <div id="archive-log" class="space-y-4">
+                            <!-- History content rendered here -->
+                        </div>
+                    </div>
+                </section>
             </div>
         </main>
 
@@ -6780,6 +6800,276 @@
                             </div>
                         ` : ''}
                     </div>
+                </div>
+            `;
+        }
+        
+        function renderActiveCampaigns() {
+            const cardEl = document.getElementById('active-campaigns-card');
+            if (!cardEl) return;
+            
+            const activeDrops = appState.drops.filter(d => d.status === 'ACTIVE');
+            const user = appState.currentUser;
+            
+            if (activeDrops.length === 0) {
+                cardEl.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="text-4xl mb-4">🎉</div>
+                        <h3 class="text-xl font-bold mb-2">No Active Campaigns</h3>
+                        <p class="text-secondary text-sm">Check back soon for new opportunities to earn points and spins!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            cardEl.innerHTML = `
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-extrabold-heading flex items-center gap-2">
+                        <span>🎯</span>
+                        <span>Active Campaigns</span>
+                    </h3>
+                    <span class="badge purple">${activeDrops.length}</span>
+                </div>
+                <div class="space-y-4">
+                    ${activeDrops.map(drop => {
+                        const hasParticipated = user && appState.participationData[user.email] && 
+                            appState.participationData[user.email].dropId === drop.id;
+                        const dropPerf = appState.performanceData[drop.id] || {};
+                        const participants = Object.keys(dropPerf).length;
+                        const totalClicks = Object.values(dropPerf).reduce((sum, clicks) => sum + clicks, 0);
+                        const userClicks = user ? (dropPerf[user.email.toLowerCase()] || 0) : 0;
+                        
+                        return `
+                            <div class="bg-bg-color p-4 rounded-xl border-2 ${hasParticipated ? 'border-green-400/50' : 'border-accent-primary/30'} cursor-pointer hover:border-accent-primary transition-all" onclick="document.getElementById('active-drop')?.scrollIntoView({ behavior: 'smooth', block: 'start' });">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div class="flex-1">
+                                        <h4 class="font-bold text-lg mb-1">${escapeHtml(drop.name)}</h4>
+                                        <p class="text-sm text-secondary line-clamp-2">${escapeHtml(drop.objective)}</p>
+                                    </div>
+                                    ${hasParticipated ? '<span class="badge green text-xs ml-2">Joined</span>' : ''}
+                                </div>
+                                <div class="grid grid-cols-3 gap-3 text-xs">
+                                    <div>
+                                        <div class="font-bold accent-text">${participants}</div>
+                                        <div class="text-secondary">Players</div>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold accent-text">${totalClicks}</div>
+                                        <div class="text-secondary">Clicks</div>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold accent-text">${userClicks}</div>
+                                        <div class="text-secondary">Your Clicks</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+        
+        function renderPastCampaigns() {
+            const cardEl = document.getElementById('past-campaigns-card');
+            if (!cardEl) return;
+            
+            const completedDrops = appState.drops.filter(d => d.status === 'COMPLETE').slice(0, 3);
+            const user = appState.currentUser;
+            
+            if (completedDrops.length === 0) {
+                cardEl.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="text-4xl mb-4">📚</div>
+                        <h3 class="text-xl font-bold mb-2">No Past Campaigns</h3>
+                        <p class="text-secondary text-sm">Your campaign history will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            cardEl.innerHTML = `
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-extrabold-heading flex items-center gap-2">
+                        <span>📚</span>
+                        <span>Recent Campaigns</span>
+                    </h3>
+                    <button class="text-sm accent-text hover:underline font-semibold" onclick="document.getElementById('drop-archive')?.scrollIntoView({ behavior: 'smooth', block: 'start' });">
+                        View All →
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    ${completedDrops.map(drop => {
+                        const dropPerf = appState.performanceData[drop.id] || {};
+                        const participants = Object.keys(dropPerf).length;
+                        const totalClicks = Object.values(dropPerf).reduce((sum, clicks) => sum + clicks, 0);
+                        const userClicks = user ? (dropPerf[user.email.toLowerCase()] || 0) : 0;
+                        const userParticipated = user && user.participatedDrops && user.participatedDrops.includes(drop.id);
+                        
+                        return `
+                            <div class="bg-bg-color p-4 rounded-xl border border-border-color hover:border-accent-primary/50 transition-all cursor-pointer" onclick="handleViewRecap({ target: { dataset: { dropId: '${drop.id}' } } });">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div class="flex-1">
+                                        <h4 class="font-bold text-base mb-1">${escapeHtml(drop.name)}</h4>
+                                        <p class="text-xs text-secondary line-clamp-1">${escapeHtml(drop.objective)}</p>
+                                    </div>
+                                    ${userParticipated ? '<span class="badge green text-xs ml-2">Participated</span>' : ''}
+                                </div>
+                                <div class="flex items-center justify-between text-xs">
+                                    <div class="flex gap-4 text-secondary">
+                                        <span>👥 ${participants}</span>
+                                        <span>📈 ${totalClicks}</span>
+                                    </div>
+                                    ${userParticipated ? `<span class="accent-text font-semibold">Your clicks: ${userClicks}</span>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+        
+        function renderDashboardQuickStats() {
+            const statsEl = document.getElementById('dashboard-quick-stats');
+            if (!statsEl) return;
+            
+            const user = appState.currentUser;
+            if (!user) return;
+            
+            const allUsers = [...appState.crew, user].filter((v, i, a) => 
+                a.findIndex(t => t.email === v.email) === i && v
+            );
+            
+            const impactScore = getUserImpactScore(user, allUsers, appState.performanceData, appState.participationData);
+            const badges = user.badges || [];
+            const level = user.level || 1;
+            const participatedDrops = (user.participatedDrops || []).length;
+            const totalClicks = Object.values(appState.performanceData || {}).reduce((sum, dropData) => {
+                return sum + (dropData[user.email.toLowerCase()] || 0);
+            }, 0);
+            
+            statsEl.innerHTML = `
+                <div class="surface-card p-6">
+                    <h3 class="text-lg font-extrabold-heading mb-4 flex items-center gap-2">
+                        <span>📊</span>
+                        <span>Your Stats</span>
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-bg-color rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">⭐</span>
+                                <div>
+                                    <div class="text-sm font-semibold">Level ${level}</div>
+                                    <div class="text-xs text-secondary">Your current level</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold accent-text">${impactScore.toLocaleString()}</div>
+                                <div class="text-xs text-secondary">Impact Score</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-bg-color rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🎯</span>
+                                <div>
+                                    <div class="text-sm font-semibold">Campaigns</div>
+                                    <div class="text-xs text-secondary">Total participated</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold accent-text">${participatedDrops}</div>
+                                <div class="text-xs text-secondary">Joined</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-bg-color rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">👆</span>
+                                <div>
+                                    <div class="text-sm font-semibold">Total Clicks</div>
+                                    <div class="text-xs text-secondary">Across all campaigns</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold accent-text">${totalClicks}</div>
+                                <div class="text-xs text-secondary">Clicks</div>
+                            </div>
+                        </div>
+                        
+                        ${badges.length > 0 ? `
+                            <div class="p-3 bg-bg-color rounded-lg">
+                                <div class="text-sm font-semibold mb-2 flex items-center gap-2">
+                                    <span>🏆</span>
+                                    <span>Badges Earned</span>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    ${badges.map(badge => `<span class="badge purple text-xs">${badge}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderDashboardLeaderboardPreview() {
+            const previewEl = document.getElementById('dashboard-leaderboard-preview');
+            if (!previewEl) return;
+            
+            const user = appState.currentUser;
+            if (!user) return;
+            
+            const allCrew = [...appState.crew];
+            if (user) {
+                const existingUser = allCrew.find(c => c.email === user.email);
+                if (!existingUser) {
+                    allCrew.push(user);
+                }
+            }
+            
+            const sortedCrew = allCrew
+                .map(m => ({ ...m, score: m.totalHype || 0 }))
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 5);
+            
+            const userRank = sortedCrew.findIndex(m => m.email === user.email) + 1;
+            
+            previewEl.innerHTML = `
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-extrabold-heading flex items-center gap-2">
+                        <span>🏆</span>
+                        <span>Top Players</span>
+                    </h3>
+                    <button class="text-sm accent-text hover:underline font-semibold" onclick="document.getElementById('roster-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });">
+                        View Full Leaderboard →
+                    </button>
+                </div>
+                <div class="space-y-3">
+                    ${sortedCrew.map((member, index) => {
+                        const isCurrentUser = member.email === user.email;
+                        const rank = index + 1;
+                        const rankEmoji = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+                        
+                        return `
+                            <div class="flex items-center gap-3 p-3 bg-bg-color rounded-lg ${isCurrentUser ? 'border-2 border-accent-primary' : 'border border-border-color'} hover:border-accent-primary/50 transition-all cursor-pointer" onclick="if(window.handleViewPlayer) window.handleViewPlayer('${member.email}');">
+                                <div class="flex items-center gap-3 flex-1">
+                                    <div class="text-lg font-bold ${rank <= 3 ? 'accent-text' : 'text-secondary'}">${rankEmoji || '#' + rank}</div>
+                                    ${getAvatarHTML(member.name, member.email, 'sm')}
+                                    <div class="flex-1">
+                                        <div class="font-semibold text-sm flex items-center gap-2">
+                                            ${escapeHtml(member.name)}
+                                            ${isCurrentUser ? '<span class="badge purple text-xs">You</span>' : ''}
+                                        </div>
+                                        <div class="text-xs text-secondary">${member.department || 'Team Member'}</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-bold accent-text">${(member.totalHype || 0).toLocaleString()}</div>
+                                    <div class="text-xs text-secondary">Points</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
                 </div>
             `;
         }
@@ -10011,6 +10301,14 @@
                 renderAuthSection();
                 logger.log('Rendering dashboard hero...');
                 renderDashboardHero();
+                logger.log('Rendering active campaigns...');
+                renderActiveCampaigns();
+                logger.log('Rendering past campaigns...');
+                renderPastCampaigns();
+                logger.log('Rendering dashboard quick stats...');
+                renderDashboardQuickStats();
+                logger.log('Rendering dashboard leaderboard preview...');
+                renderDashboardLeaderboardPreview();
                 logger.log('Rendering drop...');
                 renderDrop();
                 logger.log('Rendering sidebar...');
