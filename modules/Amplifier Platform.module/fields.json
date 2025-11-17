@@ -1,0 +1,50 @@
+[
+  {
+    "name": "click_multiplier",
+    "label": "Click Multiplier",
+    "type": "text",
+    "default": "10"
+  },
+  {
+    "name": "default_drop_name",
+    "label": "Default Drop Name",
+    "type": "text",
+    "default": "The Q3 Platform Drop"
+  },
+  {
+    "name": "default_drop_objective",
+    "label": "Default Drop Objective",
+    "type": "text",
+    "default": "Drive awareness and sign-ups for our new platform."
+  },
+  {
+    "name": "default_post_link",
+    "label": "Default Post Link",
+    "type": "text",
+    "default": "https://www.yourcompany.com/new-product"
+  },
+  {
+    "name": "default_drop_points",
+    "label": "Default Drop Points",
+    "type": "text",
+    "default": "1000"
+  },
+  {
+    "name": "drops_json",
+    "label": "Drops Configuration (JSON)",
+    "type": "richtext",
+    "default": "[]"
+  },
+  {
+    "name": "crew_json",
+    "label": "Crew Members (JSON)",
+    "type": "richtext",
+    "default": "[]"
+  },
+  {
+    "name": "performance_json",
+    "label": "Performance Data (JSON)",
+    "type": "richtext",
+    "default": "{}"
+  }
+]

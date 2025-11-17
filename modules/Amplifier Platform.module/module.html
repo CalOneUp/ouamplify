@@ -1,0 +1,820 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+
+{% require_css %}
+<style>
+    :root {
+        --bg-color: #101010;
+        --surface-color: #1C1C1C;
+        --text-primary: #FFFFFF;
+        --text-secondary: #A0A0A0;
+        --accent-primary: #BE38F3; /* Electric Purple */
+        --accent-secondary: #F43F5E; /* Rose */
+        --accent-glow: rgba(190, 56, 243, 0.5);
+        --border-color: #2D2D2D;
+    }
+
+    #amplifier-app {
+        font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-primary);
+        font-size: 16px;
+        padding: 1rem;
+    }
+
+    @media (min-width: 768px) {
+        #amplifier-app {
+            padding: 2rem;
+        }
+    }
+
+    .font-extrabold-heading { 
+        font-weight: 800; 
+        letter-spacing: -0.03em; 
+    }
+
+    .gradient-text {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
+    }
+
+    .gradient-bg {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+    }
+
+    .gradient-bg:hover:not(:disabled) {
+        transform: scale(1.02);
+        box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .accent-text { 
+        color: var(--accent-primary); 
+    }
+
+    .surface-card { 
+        background-color: var(--surface-color); 
+        border: 1px solid var(--border-color); 
+        border-radius: 16px; 
+    }
+
+    @keyframes fadeIn { 
+        from { 
+            opacity: 0; 
+            transform: translateY(10px); 
+        } 
+        to { 
+            opacity: 1; 
+            transform: translateY(0); 
+        } 
+    }
+
+    .fade-in { 
+        animation: fadeIn 0.5s ease-out forwards; 
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    #amplifier-app input[type="text"] { 
+        background-color: var(--bg-color); 
+        border: 1px solid var(--border-color); 
+        color: var(--text-primary); 
+        border-radius: 8px; 
+        padding: 1rem;
+        width: 100%;
+    }
+
+    #amplifier-app input[type="text"]:focus { 
+        outline: none; 
+        border: 1px solid var(--accent-primary); 
+        box-shadow: 0 0 0 3px var(--accent-glow); 
+    }
+
+    #amplifier-app button { 
+        border-radius: 8px; 
+        transition: all 0.2s ease; 
+        cursor: pointer;
+        border: none;
+    }
+
+    #amplifier-app button:disabled { 
+        background: var(--surface-color); 
+        color: #6B7280; 
+        cursor: not-allowed; 
+        border: 1px solid var(--border-color); 
+    }
+
+    @keyframes count-up {
+        from { 
+            transform: translateY(15px); 
+            opacity: 0; 
+        }
+        to { 
+            transform: translateY(0); 
+            opacity: 1; 
+        }
+    }
+
+    .count-up {
+        animation: count-up 0.6s ease-out forwards;
+    }
+
+    .progress-bar {
+        background-color: var(--border-color);
+        border-radius: 4px;
+        overflow: hidden;
+        height: 10px;
+    }
+
+    .progress-bar-inner {
+        height: 10px;
+        border-radius: 4px;
+        transition: width 1s ease-out;
+    }
+
+    .text-secondary {
+        color: var(--text-secondary);
+    }
+
+    .text-text-primary {
+        color: var(--text-primary);
+    }
+
+    .bg-bg-color {
+        background-color: var(--bg-color);
+    }
+
+    .border-border-color {
+        border-color: var(--border-color);
+    }
+</style>
+{% end_require_css %}
+
+<div id="amplifier-app" class="container mx-auto">
+    <!-- Header -->
+    <header class="flex justify-between items-center mb-8 md:mb-12">
+        <div class="flex items-center gap-3">
+            <h1 class="text-2xl font-extrabold-heading">📣 The Amplifier</h1>
+        </div>
+        <div id="auth-section">
+            <!-- Auth content will be rendered here -->
+        </div>
+    </header>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="max-w-lg mx-auto text-center mt-16 fade-in">
+        <h2 class="text-6xl font-extrabold-heading mb-4 gradient-text">Make Waves.</h2>
+        <p class="mb-8 text-xl text-secondary">Join the crew. Amplify the message. See the impact.</p>
+        <div class="flex flex-col gap-4">
+            <input type="text" id="advocate-name-input" placeholder="Enter your name" class="p-4 text-center text-lg">
+            <button id="login-button" class="gradient-bg text-white font-bold py-4 text-lg">Join the Crew</button>
+        </div>
+    </div>
+
+    <!-- Main App View -->
+    <main id="main-app" class="hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Active Drop -->
+                <section id="active-drop" class="surface-card p-6 md:p-8">
+                    <!-- Drop content rendered here -->
+                </section>
+
+                <!-- Drop Archive -->
+                <section id="drop-archive">
+                    <h3 class="text-2xl font-extrabold-heading mb-4">Past Drops</h3>
+                    <div id="archive-log" class="space-y-4">
+                        <!-- History content rendered here -->
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column: The Roster -->
+            <div class="lg:col-span-1">
+                <section id="roster-section" class="surface-card p-6 md:p-8">
+                    <h3 class="text-2xl font-extrabold-heading mb-4 text-center">The Roster 🔥</h3>
+                    <div id="roster" class="space-y-3">
+                        <!-- Roster content rendered here -->
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Drop Recap View -->
+    <div id="recap-screen" class="hidden">
+        <!-- Recap content will be rendered here -->
+    </div>
+</div>
+
+{% require_js %}
+<script>
+(function() {
+    'use strict';
+    
+    // Scope everything to avoid conflicts
+    const AMPLIFIER_APP_ID = 'amplifier-app-{{ module_id }}';
+    const appContainer = document.getElementById('amplifier-app');
+    if (!appContainer) return;
+
+    // --- STATE MANAGEMENT & CONFIGURATION --- //
+    const CLICK_MULTIPLIER = parseInt({{ module.click_multiplier|default("10") }}, 10) || 10;
+    
+    // Initialize drops from module fields or use defaults
+    const initialDrops = {{ module.drops_json|default('[]')|safe }};
+    const initialCrew = {{ module.crew_json|default('[]')|safe }};
+    const initialPerformance = {{ module.performance_json|default('{}')|safe }};
+
+    const appState = {
+        currentView: 'login',
+        currentUser: null,
+        drops: initialDrops.length > 0 ? initialDrops : [
+            {
+                id: 'd001',
+                name: '{{ module.default_drop_name|default("The Q3 Platform Drop") }}',
+                objective: '{{ module.default_drop_objective|default("Drive awareness and sign-ups for our new platform.") }}',
+                status: 'ACTIVE',
+                instructions: [
+                    "1. Download your preferred visual asset.",
+                    "2. Choose a copy option that sounds most like you, or generate new ones!",
+                    "3. Post everything to LinkedIn with your unique link.",
+                    "4. Return here and smash that button to get your Hype!"
+                ],
+                visualAssets: [],
+                contentOptions: [
+                    { type: 'Statement', text: "It's here! So excited to finally share what we've been building. This platform is going to be a huge leap forward for our industry. Check it out and let me know what you think!" },
+                    { type: 'Question', text: "Ready for a smarter way to work? Our new platform just dropped, and it's designed to do just that. Curious to hear your thoughts!" }
+                ],
+                postLink: '{{ module.default_post_link|default("https://www.yourcompany.com/new-product") }}',
+                points: parseInt({{ module.default_drop_points|default("1000") }}, 10) || 1000
+            }
+        ],
+        crew: initialCrew.length > 0 ? initialCrew : [],
+        performanceData: initialPerformance
+    };
+
+    // --- DOM ELEMENTS --- //
+    const loginScreen = document.getElementById('login-screen');
+    const mainApp = document.getElementById('main-app');
+    const recapScreen = document.getElementById('recap-screen');
+    const authSection = document.getElementById('auth-section');
+    const loginButton = document.getElementById('login-button');
+    const advocateNameInput = document.getElementById('advocate-name-input');
+
+    // --- VIEW MANAGEMENT --- //
+    function switchView(view) {
+        appState.currentView = view;
+        loginScreen.classList.add('hidden');
+        mainApp.classList.add('hidden');
+        recapScreen.classList.add('hidden');
+
+        if (view === 'login') loginScreen.classList.remove('hidden');
+        if (view === 'main') mainApp.classList.remove('hidden');
+        if (view === 'recap') recapScreen.classList.remove('hidden');
+    }
+
+    // --- LOGIC & CALCULATION FUNCTIONS --- //
+    function calculateCrewScore(member) {
+        if (!member) return 0;
+        return member.participatedDrops.reduce((totalScore, dropId) => {
+            const drop = appState.drops.find(d => d.id === dropId);
+            if (!drop) return totalScore;
+
+            let dropScore = drop.points;
+            const dropPerformance = appState.performanceData[dropId];
+            if (dropPerformance && dropPerformance[member.name]) {
+                const clicks = dropPerformance[member.name];
+                dropScore += clicks * CLICK_MULTIPLIER;
+            }
+            return totalScore + dropScore;
+        }, 0);
+    }
+
+    // --- RENDER FUNCTIONS --- //
+    function renderAuthSection() {
+        if (appState.currentUser) {
+            authSection.innerHTML = `
+                <div class="text-right">
+                    <p class="text-md font-semibold">👋 ${escapeHtml(appState.currentUser.name)}</p>
+                    <button id="logout-button" class="text-sm text-red-500 hover:underline">Sign Out</button>
+                </div>`;
+            const logoutBtn = document.getElementById('logout-button');
+            if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+        } else {
+            authSection.innerHTML = ``;
+        }
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function renderDrop() {
+        const activeDrop = appState.drops.find(d => d.status === 'ACTIVE');
+        const terminal = document.getElementById('active-drop');
+        
+        if (!activeDrop) {
+            terminal.innerHTML = `<h3 class="text-2xl font-extrabold-heading text-center">All Drops Complete! ✅</h3><p class="text-center text-secondary mt-2">Stand by for the next one.</p>`;
+            return;
+        }
+
+        const hasParticipated = appState.currentUser && appState.currentUser.participatedDrops.includes(activeDrop.id);
+        const generatedLink = `${activeDrop.postLink}?utm_campaign=${encodeURIComponent(activeDrop.name.replace(/ /g, "_"))}&utm_source=amplifier&utm_content=${appState.currentUser ? encodeURIComponent(appState.currentUser.name.replace(/ /g, "_")) : "user"}`;
+
+        let performanceHTML = '';
+        if (hasParticipated && appState.currentUser) {
+            const dropPerformance = appState.performanceData[activeDrop.id];
+            const clicks = dropPerformance && dropPerformance[appState.currentUser.name] ? dropPerformance[appState.currentUser.name] : 0;
+            const performanceHype = clicks * CLICK_MULTIPLIER;
+
+            performanceHTML = `
+                <div class="mt-6 pt-6 border-t border-dashed border-border-color">
+                    <h4 class="font-bold text-lg mb-3 text-green-400">Your Performance 📈</h4>
+                    <div class="bg-bg-color p-4 rounded-lg text-secondary">
+                        <div class="flex justify-between items-center">
+                            <span>Clicks Generated:</span>
+                            <span class="accent-text font-bold text-lg">${clicks}</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-2">
+                            <span>Performance Bonus:</span>
+                            <span class="accent-text font-bold text-lg">${performanceHype.toLocaleString()} Hype</span>
+                        </div>
+                    </div>
+                </div>`;
+        }
+        
+        let visualAssetsHTML = '';
+        if (activeDrop.visualAssets && activeDrop.visualAssets.length > 0) {
+            visualAssetsHTML = `
+                <div class="mt-6">
+                    <h4 class="font-bold text-lg mb-3">1. Grab Your Visuals 🖼️</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        ${activeDrop.visualAssets.map(asset => `
+                            <div class="border border-border-color p-2 bg-bg-color rounded-lg">
+                                <img src="${escapeHtml(asset.url)}" alt="${escapeHtml(asset.filename)}" class="w-full h-auto object-cover mb-3 rounded-md">
+                                <a href="${escapeHtml(asset.url)}" download="${escapeHtml(asset.filename)}" class="block text-center bg-gray-600 text-white px-3 py-2 text-sm hover:bg-gray-700 w-full rounded-md font-semibold">Download</a>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+        }
+
+        let contentOptionsHTML = `
+            <div class="mt-6">
+                <div class="flex justify-between items-center mb-3">
+                     <h4 class="font-bold text-lg">2. Choose Your Message 💬</h4>
+                     <button id="suggest-copy-button" class="text-sm accent-text font-semibold hover:underline">✨ Suggest More Copy</button>
+                </div>
+                <div class="space-y-3" id="content-options-container">
+                    ${activeDrop.contentOptions.map((option, index) => `
+                        <div class="bg-bg-color p-4 rounded-lg">
+                            <p class="text-secondary text-sm mb-2 font-semibold">[Option ${index + 1}: ${escapeHtml(option.type)}]</p>
+                            <div class="flex justify-between items-start gap-4">
+                                <p class="text-text-primary">${escapeHtml(option.text)}</p>
+                                <button class="copy-text-button bg-gray-200 text-text-primary px-3 py-1 text-sm hover:bg-gray-300 flex-shrink-0 rounded-md font-semibold" data-text="${escapeHtml(option.text)}">Copy</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div id="copy-suggestions-loader" class="hidden text-center p-4 text-secondary">Generating ideas...</div>
+            </div>`;
+
+        terminal.innerHTML = `
+            <div class="text-left mb-6">
+                <p class="text-secondary font-semibold">Active Drop</p>
+                <h3 class="text-4xl font-extrabold-heading gradient-text">${escapeHtml(activeDrop.name)}</h3>
+            </div>
+            
+            <div class="bg-purple-900/20 border-l-4 border-accent-primary p-4 rounded-r-lg mb-6">
+                <h4 class="font-bold text-lg mb-2">The Playbook 📝</h4>
+                <div class="text-purple-200 space-y-1">
+                    ${activeDrop.instructions.map(inst => `<p>${escapeHtml(inst)}</p>`).join('')}
+                </div>
+            </div>
+
+            ${visualAssetsHTML}
+            ${contentOptionsHTML}
+
+            <div class="mt-6">
+                 <h4 class="font-bold text-lg mb-3">3. Your Unique Link 🔗</h4>
+                 <div class="bg-bg-color p-3 rounded-lg flex justify-between items-center gap-2">
+                    <span class="text-secondary truncate">${escapeHtml(generatedLink)}</span>
+                    <button id="copy-link-button" data-text="${escapeHtml(generatedLink)}" class="bg-gray-200 text-text-primary px-3 py-1 text-sm hover:bg-gray-300 rounded-md font-semibold">Copy</button>
+                 </div>
+            </div>
+            
+            ${performanceHTML}
+
+            <div class="mt-8 pt-6 border-t border-border-color text-center">
+                <button id="participate-button" class="gradient-bg text-white font-bold py-4 px-12 text-lg" ${hasParticipated ? 'disabled' : ''}>
+                    ${hasParticipated ? 'You\'re In! ✅' : 'Make Your Move'}
+                </button>
+            </div>
+        `;
+        
+        document.querySelectorAll('.copy-text-button, #copy-link-button').forEach(button => {
+            button.addEventListener('click', handleCopyText);
+        });
+        
+        const suggestBtn = document.getElementById('suggest-copy-button');
+        if (suggestBtn) suggestBtn.addEventListener('click', handleSuggestCopy);
+        
+        const participateBtn = document.getElementById('participate-button');
+        if (participateBtn && !hasParticipated) {
+            participateBtn.addEventListener('click', handleParticipation);
+        }
+    }
+
+    function renderRoster() {
+        const rosterEl = document.getElementById('roster');
+        if (!rosterEl) return;
+        
+        rosterEl.innerHTML = '';
+        
+        const allCrew = [...appState.crew];
+        if (appState.currentUser) {
+            allCrew.push(appState.currentUser);
+        }
+        
+        const uniqueCrew = allCrew.filter((v, i, a) => a.findIndex(t => (t.name === v.name)) === i);
+
+        const sortedCrew = uniqueCrew
+            .map(member => ({ ...member, score: calculateCrewScore(member) }))
+            .sort((a, b) => b.score - a.score);
+
+        sortedCrew.forEach((member, index) => {
+            const isCurrentUser = appState.currentUser && member.name === appState.currentUser.name;
+            const topCrewClass = index < 3 ? 'bg-purple-900/20' : '';
+            const currentUserClass = isCurrentUser ? 'ring-2 ring-accent-primary' : '';
+            const rankEmoji = index === 0 ? '🥇' : (index === 1 ? '🥈' : (index === 2 ? '🥉' : ''));
+
+            rosterEl.innerHTML += `
+                <div class="flex items-center justify-between p-3 rounded-lg ${topCrewClass} ${currentUserClass}">
+                    <div class="flex items-center gap-4">
+                        <span class="font-bold text-lg text-secondary w-8 text-center">${index + 1} ${rankEmoji}</span>
+                        <span class="font-semibold text-text-primary text-lg">${escapeHtml(member.name)}</span>
+                    </div>
+                    <div class="font-bold text-lg accent-text">${member.score.toLocaleString()} Hype</div>
+                </div>`;
+        });
+    }
+
+    function renderArchive() {
+        const archiveLog = document.getElementById('archive-log');
+        if (!archiveLog) return;
+        
+        archiveLog.innerHTML = '';
+        const completedDrops = appState.drops.filter(d => d.status === 'COMPLETE');
+
+        if(completedDrops.length === 0) {
+            archiveLog.innerHTML = `<p class="text-secondary text-center">No past drops.</p>`;
+            return;
+        }
+
+        completedDrops.forEach(drop => {
+            archiveLog.innerHTML += `
+                <div class="surface-card p-4 rounded-lg">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="font-semibold text-lg">${escapeHtml(drop.name)}</p>
+                            <p class="text-sm text-secondary">${escapeHtml(drop.objective)}</p>
+                        </div>
+                        <button class="view-recap-button text-sm accent-text hover:underline font-semibold" data-drop-id="${escapeHtml(drop.id)}">View Recap</button>
+                    </div>
+                </div>`;
+        });
+        
+        document.querySelectorAll('.view-recap-button').forEach(button => {
+            button.addEventListener('click', handleViewRecap);
+        });
+    }
+
+    function renderRecap(dropId) {
+        const drop = appState.drops.find(d => d.id === dropId);
+        if (!drop) return;
+        
+        const performance = appState.performanceData[dropId] || {};
+        const participants = Object.keys(performance);
+        const totalClicks = Object.values(performance).reduce((sum, clicks) => sum + clicks, 0);
+        
+        const teamClicks = {};
+        participants.forEach(memberName => {
+            const member = appState.crew.find(m => m.name === memberName);
+            if (member) {
+                teamClicks[member.department] = (teamClicks[member.department] || 0) + performance[memberName];
+            }
+        });
+        const sortedTeams = Object.entries(teamClicks).sort(([,a],[,b]) => b-a);
+        const maxTeamClicks = sortedTeams.length > 0 ? sortedTeams[0][1] : 0;
+
+        const sortedCrew = participants
+            .map(name => ({ name, clicks: performance[name] }))
+            .sort((a,b) => b.clicks - a.clicks)
+            .slice(0, 5);
+
+        recapScreen.innerHTML = `
+            <div class="max-w-5xl mx-auto fade-in">
+                <button id="back-to-main" class="accent-text hover:underline mb-8 text-lg font-semibold">&larr; Back to Dashboard</button>
+                <div class="text-center">
+                    <h2 class="text-5xl font-extrabold-heading mb-2">DROP RECAP</h2>
+                    <p class="text-4xl font-extrabold-heading gradient-text mb-8">${escapeHtml(drop.name)}</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center mb-12">
+                    <div class="surface-card p-6">
+                        <p class="text-6xl font-extrabold-heading gradient-text count-up" data-target="${totalClicks}">0</p>
+                        <p class="text-secondary mt-2 font-semibold">📈 Total Clicks</p>
+                    </div>
+                    <div class="surface-card p-6">
+                        <p class="text-6xl font-extrabold-heading gradient-text count-up" data-target="${participants.length}">0</p>
+                        <p class="text-secondary mt-2 font-semibold">👥 Crew Members</p>
+                    </div>
+                    <div class="surface-card p-6">
+                        <p class="text-6xl font-extrabold-heading gradient-text count-up" data-target="${totalClicks * 125}">0</p>
+                        <p class="text-secondary mt-2 font-semibold">🌐 Social Reach</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="surface-card p-6">
+                        <h3 class="text-2xl font-extrabold-heading mb-6 text-center">Crew Breakdown 🤝</h3>
+                        <div class="space-y-4">
+                            ${sortedTeams.map(([team, clicks]) => `
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="font-semibold text-text-primary">${escapeHtml(team)}</span>
+                                        <span class="accent-text font-bold">${clicks} Clicks</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-bar-inner gradient-bg" style="width: 0%;" data-width="${(clicks / maxTeamClicks) * 100}%"></div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="surface-card p-6">
+                        <h3 class="text-2xl font-extrabold-heading mb-6 text-center">The MVPs ✨</h3>
+                        <div class="space-y-3">
+                            ${sortedCrew.map(({name, clicks}, index) => `
+                                <div class="bg-bg-color p-3 rounded-lg flex justify-between items-center ${index === 0 ? 'ring-2 ring-accent-primary' : ''}">
+                                    <span class="font-semibold text-text-primary">${index === 0 ? '🥇' : ''} ${escapeHtml(name)}</span>
+                                    <span class="accent-text font-bold">${clicks} Clicks</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="surface-card p-6 mt-8">
+                     <div class="flex justify-between items-center mb-4">
+                         <h3 class="text-2xl font-extrabold-heading">AI-Generated Summary 🤖</h3>
+                         <button id="generate-summary-button" class="text-sm accent-text font-semibold hover:underline">✨ Generate</button>
+                     </div>
+                     <div id="summary-output" class="text-secondary italic bg-bg-color p-4 rounded-lg">Click generate to create a summary of this drop's success...</div>
+                 </div>
+            </div>
+        `;
+        
+        const backBtn = document.getElementById('back-to-main');
+        if (backBtn) backBtn.addEventListener('click', () => switchView('main'));
+        
+        const summaryBtn = document.getElementById('generate-summary-button');
+        if (summaryBtn) summaryBtn.addEventListener('click', () => handleGenerateSummary(dropId));
+        
+        // Animate numbers and progress bars
+        setTimeout(() => {
+            document.querySelectorAll('.count-up').forEach(el => animateCountUp(el));
+            document.querySelectorAll('.progress-bar-inner').forEach(el => {
+                el.style.width = el.dataset.width;
+            });
+        }, 100);
+    }
+    
+    function animateCountUp(el) {
+        const target = parseInt(el.dataset.target, 10);
+        let current = 0;
+        const duration = 1000;
+        const increment = target / (duration / 16);
+
+        function updateCount() {
+            current += increment;
+            if (current < target) {
+                el.textContent = Math.ceil(current).toLocaleString();
+                requestAnimationFrame(updateCount);
+            } else {
+                el.textContent = target.toLocaleString();
+            }
+        }
+        requestAnimationFrame(updateCount);
+    }
+
+    // --- EVENT HANDLERS --- //
+    function handleLogin() {
+        const advocateName = advocateNameInput.value.trim();
+        if (!advocateName) { 
+            alert('Name cannot be empty.'); 
+            return; 
+        }
+        
+        let user = appState.crew.find(a => a.name.toLowerCase() === advocateName.toLowerCase());
+        if (!user) {
+            user = { name: advocateName, department: 'Unassigned', participatedDrops: [] };
+        }
+        appState.currentUser = user;
+        switchView('main');
+        renderAll();
+    }
+    
+    function handleLogout() {
+        if (appState.currentUser) {
+            const userIndex = appState.crew.findIndex(a => a.name === appState.currentUser.name);
+            if (userIndex > -1) {
+                appState.crew[userIndex] = appState.currentUser;
+            } else {
+                appState.crew.push(appState.currentUser);
+            }
+        }
+        appState.currentUser = null;
+        advocateNameInput.value = '';
+        switchView('login');
+        renderAuthSection();
+    }
+
+    function handleParticipation() {
+        const activeDrop = appState.drops.find(d => d.status === 'ACTIVE');
+        if (!activeDrop || !appState.currentUser || appState.currentUser.participatedDrops.includes(activeDrop.id)) return;
+        
+        appState.currentUser.participatedDrops.push(activeDrop.id);
+        
+        const participateButton = document.getElementById('participate-button');
+        if (participateButton) {
+            participateButton.disabled = true;
+            
+            const messages = ['Broadcasting Signal...', 'Amplifying...', 'Hype Secured! ✨'];
+            let i = 0;
+            participateButton.textContent = messages[i];
+            const interval = setInterval(() => {
+                i++;
+                if (i < messages.length) {
+                    participateButton.textContent = messages[i];
+                } else {
+                    clearInterval(interval);
+                    if (!appState.performanceData[activeDrop.id]) {
+                        appState.performanceData[activeDrop.id] = {};
+                    }
+                    appState.performanceData[activeDrop.id][appState.currentUser.name] = Math.floor(Math.random() * 250) + 10;
+                    renderAll();
+                }
+            }, 800);
+        }
+    }
+
+    function handleCopyText(event) {
+        const textToCopy = event.target.dataset.text;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const originalText = event.target.textContent;
+            event.target.textContent = 'Copied!';
+            setTimeout(() => { 
+                event.target.textContent = originalText; 
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+    }
+
+    function handleViewRecap(event) {
+        const dropId = event.target.dataset.dropId;
+        switchView('recap');
+        renderRecap(dropId);
+    }
+
+    // --- AI INTEGRATIONS (Mock for now) --- //
+    async function handleSuggestCopy() {
+        const button = document.getElementById('suggest-copy-button');
+        const loader = document.getElementById('copy-suggestions-loader');
+        const container = document.getElementById('content-options-container');
+        const activeDrop = appState.drops.find(d => d.status === 'ACTIVE');
+        if (!activeDrop || !button || !loader || !container) return;
+
+        button.disabled = true;
+        loader.classList.remove('hidden');
+
+        const existingCopy = activeDrop.contentOptions.map(opt => `- "${opt.text}"`).join('\n');
+        const prompt = `Based on the following examples of social media copy for a product launch:\n\n${existingCopy}\n\nGenerate three new, distinct copy suggestions. They should be exciting and professional.`;
+
+        try {
+            // Mock API call - replace with actual HubSpot serverless function call
+            const resultText = await mockGeminiApiCall(prompt, 2000);
+            
+            const suggestions = resultText.split('\n').filter(line => line.trim().length > 0).map(line => {
+                const match = line.match(/^\d+\.\s*(.+)$/);
+                return match ? match[1] : line;
+            });
+
+            suggestions.forEach((suggestion, index) => {
+                const newOption = document.createElement('div');
+                newOption.className = 'bg-bg-color p-4 rounded-lg border border-dashed border-accent-primary fade-in';
+                newOption.innerHTML = `
+                    <p class="text-secondary text-sm mb-2 font-semibold">[✨ AI Suggestion ${index + 1}]</p>
+                    <div class="flex justify-between items-start gap-4">
+                        <p class="text-text-primary">${escapeHtml(suggestion)}</p>
+                        <button class="copy-text-button bg-gray-200 text-text-primary px-3 py-1 text-sm hover:bg-gray-300 flex-shrink-0 rounded-md font-semibold" data-text="${escapeHtml(suggestion)}">Copy</button>
+                    </div>`;
+                container.appendChild(newOption);
+            });
+            
+            document.querySelectorAll('.copy-text-button').forEach(btn => {
+                btn.addEventListener('click', handleCopyText);
+            });
+
+        } catch (error) {
+            console.error("Error fetching copy suggestions:", error);
+            container.innerHTML += `<p class="text-red-500">Error generating suggestions.</p>`;
+        } finally {
+            loader.classList.add('hidden');
+            button.textContent = "Done!";
+            setTimeout(() => {
+                button.disabled = true;
+            }, 1000);
+        }
+    }
+
+    async function handleGenerateSummary(dropId) {
+        const button = document.getElementById('generate-summary-button');
+        const output = document.getElementById('summary-output');
+        const drop = appState.drops.find(d => d.id === dropId);
+        if (!drop || !button || !output) return;
+        
+        const performance = appState.performanceData[dropId] || {};
+        const participants = Object.keys(performance).length;
+        const totalClicks = Object.values(performance).reduce((sum, clicks) => sum + clicks, 0);
+
+        button.disabled = true;
+        output.textContent = "Generating summary...";
+
+        const prompt = `Write a short, celebratory summary paragraph for an internal company announcement about a successful social media campaign. Campaign: "${drop.name}", Objective: "${drop.objective}", Participants: ${participants}, Total clicks: ${totalClicks}`;
+
+        try {
+            const resultText = await mockGeminiApiCall(prompt, 2500);
+            output.textContent = resultText;
+        } catch (error) {
+            console.error("Error fetching summary:", error);
+            output.textContent = "Error generating summary.";
+        } finally {
+            button.textContent = "Done!";
+            setTimeout(() => {
+                button.disabled = true;
+            }, 1000);
+        }
+    }
+    
+    function mockGeminiApiCall(prompt, delay) {
+        console.log("--- MOCK GEMINI PROMPT ---");
+        console.log(prompt);
+        console.log("--------------------------");
+        return new Promise(resolve => {
+            setTimeout(() => {
+                if (prompt.includes("copy suggestions")) {
+                    resolve(`1. The wait is over. Our new platform is officially live, and it's set to redefine the industry standard.\n2. How much time could you save with a fully streamlined workflow? We built our new platform to answer that question.\n3. I've been so excited to share this! The team has been working incredibly hard on our new platform, and it's finally here.`);
+                } else {
+                    const drop = appState.drops.find(d => d.status === 'COMPLETE' || d.id);
+                    const performance = appState.performanceData[drop?.id] || {};
+                    const participants = Object.keys(performance).length;
+                    const totalClicks = Object.values(performance).reduce((sum, clicks) => sum + clicks, 0);
+                    resolve(`What a result! The campaign was a massive success, all thanks to the incredible teamwork of our crew. With ${participants} members participating, we generated an amazing ${totalClicks} clicks, completely smashing our goals. This just proves that when we work together, our collective voice is unstoppable. Huge congratulations to everyone involved!`);
+                }
+            }, delay);
+        });
+    }
+
+    // --- INITIALIZATION --- //
+    function renderAll() {
+        renderAuthSection();
+        renderDrop();
+        renderRoster();
+        renderArchive();
+    }
+
+    if (loginButton) {
+        loginButton.addEventListener('click', handleLogin);
+    }
+    
+    if (advocateNameInput) {
+        advocateNameInput.addEventListener('keyup', (e) => { 
+            if (e.key === 'Enter') handleLogin(); 
+        });
+    }
+
+    renderAuthSection();
+})();
+</script>
+{% end_require_js %}
+

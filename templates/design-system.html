@@ -1,0 +1,700 @@
+<!--
+  templateType: "none"
+  isAvailableForNewContent: false
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmpUp Design System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-color: #0A0A0A;
+            --surface-color: #151515;
+            --surface-elevated: #1F1F1F;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --accent-primary: #BE38F3;
+            --accent-secondary: #F43F5E;
+            --accent-glow: rgba(190, 56, 243, 0.4);
+            --border-color: #2A2A2A;
+            --border-hover: #3A3A3A;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 24px rgba(190, 56, 243, 0.3);
+            
+            /* Semantic Colors */
+            --color-success: #10B981;
+            --color-success-bg: rgba(16, 185, 129, 0.1);
+            --color-warning: #F59E0B;
+            --color-warning-bg: rgba(245, 158, 11, 0.1);
+            --color-error: #EF4444;
+            --color-error-bg: rgba(239, 68, 68, 0.1);
+            --color-info: #3B82F6;
+            --color-info-bg: rgba(59, 130, 246, 0.1);
+            
+            /* Persona Colors */
+            --persona-achiever: #F59E0B;
+            --persona-explorer: #3B82F6;
+            --persona-socializer: #10B981;
+            --persona-killer: #EF4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--bg-color) 0%, #0F0F0F 50%, var(--bg-color) 100%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: linear-gradient(135deg, var(--surface-color) 0%, var(--surface-elevated) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .color-swatch {
+            display: inline-block;
+            width: 120px;
+            height: 120px;
+            border-radius: 12px;
+            margin: 0.5rem;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .color-swatch-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 0.5rem;
+            background: rgba(0, 0, 0, 0.7);
+            font-size: 0.75rem;
+            text-align: center;
+        }
+
+        .typography-sample {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .typography-sample:last-child {
+            border-bottom: none;
+        }
+
+        .component-demo {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            margin: 0.25rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--accent-glow);
+        }
+
+        .btn-secondary {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--border-hover);
+            background: var(--surface-elevated);
+        }
+
+        .persona-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            margin: 0.25rem;
+        }
+
+        .persona-badge.achiever {
+            border-color: var(--persona-achiever);
+            color: var(--persona-achiever);
+        }
+
+        .persona-badge.explorer {
+            border-color: var(--persona-explorer);
+            color: var(--persona-explorer);
+        }
+
+        .persona-badge.socializer {
+            border-color: var(--persona-socializer);
+            color: var(--persona-socializer);
+        }
+
+        .persona-badge.killer {
+            border-color: var(--persona-killer);
+            color: var(--persona-killer);
+        }
+
+        .persona-demo {
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            border: 2px solid;
+        }
+
+        .persona-achiever-demo {
+            border-color: var(--persona-achiever);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .persona-explorer-demo {
+            border-color: var(--persona-explorer);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .persona-socializer-demo {
+            border-color: var(--persona-socializer);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .persona-killer-demo {
+            border-color: var(--persona-killer);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .code-block {
+            background: #1a1a1a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            color: #a0a0a0;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .toc {
+            position: sticky;
+            top: 2rem;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+
+        .toc-item {
+            display: block;
+            padding: 0.5rem 0;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .toc-item:hover {
+            color: var(--accent-primary);
+        }
+
+        .toc-item.active {
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header style="margin-bottom: 4rem; padding-top: 2rem;">
+            <h1 class="section-title">AmpUp Design System</h1>
+            <p class="section-subtitle">Comprehensive UI/UX guidelines and component library for the AmpUp Social Thunderclap Platform</p>
+        </header>
+
+        <div style="display: grid; grid-template-columns: 250px 1fr; gap: 2rem;">
+            <!-- Table of Contents -->
+            <nav class="toc">
+                <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Contents</h3>
+                <a href="#colors" class="toc-item">Colors</a>
+                <a href="#typography" class="toc-item">Typography</a>
+                <a href="#components" class="toc-item">Components</a>
+                <a href="#personas" class="toc-item">Player Personas</a>
+                <a href="#patterns" class="toc-item">Patterns</a>
+                <a href="#spacing" class="toc-item">Spacing</a>
+            </nav>
+
+            <!-- Main Content -->
+            <main>
+                <!-- Colors Section -->
+                <section id="colors" class="section">
+                    <h2 class="section-title">Color System</h2>
+                    <p class="section-subtitle">Primary palette, semantic colors, and persona-specific variants</p>
+
+                    <div class="card">
+                        <h3 class="card-title">Primary Colors</h3>
+                        <div class="grid-3">
+                            <div>
+                                <div class="color-swatch" style="background: var(--bg-color);">
+                                    <div class="color-swatch-label">Background<br>#0A0A0A</div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="color-swatch" style="background: var(--surface-color);">
+                                    <div class="color-swatch-label">Surface<br>#151515</div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="color-swatch" style="background: var(--surface-elevated);">
+                                    <div class="color-swatch-label">Elevated<br>#1F1F1F</div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="color-swatch" style="background: var(--accent-primary);">
+                                    <div class="color-swatch-label">Accent Primary<br>#BE38F3</div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="color-swatch" style="background: var(--accent-secondary);">
+                                    <div class="color-swatch-label">Accent Secondary<br>#F43F5E</div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="color-swatch" style="background: var(--border-color);">
+                                    <div class="color-swatch-label">Border<br>#2A2A2A</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Semantic Colors</h3>
+                        <div class="grid-3">
+                            <div>
+                                <div class="color-swatch" style="background: var(--color-success);">
+                                    <div class="color-swatch-label">Success<br>#10B981</div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="color-swatch" style="background: var(--color-warning);">
+                                    <div class="color-swatch-label">Warning<br>#F59E0B</div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="color-swatch" style="background: var(--color-error);">
+                                    <div class="color-swatch-label">Error<br>#EF4444</div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="color-swatch" style="background: var(--color-info);">
+                                    <div class="color-swatch-label">Info<br>#3B82F6</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Persona Colors</h3>
+                        <p style="margin-bottom: 1rem; color: var(--text-secondary);">Each player persona has a distinct color scheme for visual identification and emphasis.</p>
+                        <div class="grid-3">
+                            <div>
+                                <div class="color-swatch" style="background: var(--persona-achiever);">
+                                    <div class="color-swatch-label">Achiever<br>#F59E0B</div>
+                                </div>
+                                <p style="text-align: center; margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">🏆 Gold/Yellow</p>
+                            </div>
+                            <div>
+                                <div class="color-swatch" style="background: var(--persona-explorer);">
+                                    <div class="color-swatch-label">Explorer<br>#3B82F6</div>
+                                </div>
+                                <p style="text-align: center; margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">🔍 Blue/Cyan</p>
+                            </div>
+                            <div>
+                                <div class="color-swatch" style="background: var(--persona-socializer);">
+                                    <div class="color-swatch-label">Socializer<br>#10B981</div>
+                                </div>
+                                <p style="text-align: center; margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">🤝 Green/Teal</p>
+                            </div>
+                            <div>
+                                <div class="color-swatch" style="background: var(--persona-killer);">
+                                    <div class="color-swatch-label">Killer<br>#EF4444</div>
+                                </div>
+                                <p style="text-align: center; margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">⚔️ Red/Orange</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Typography Section -->
+                <section id="typography" class="section">
+                    <h2 class="section-title">Typography</h2>
+                    <p class="section-subtitle">Font families, sizes, weights, and text utilities</p>
+
+                    <div class="card">
+                        <h3 class="card-title">Font Family</h3>
+                        <p style="margin-bottom: 1rem; color: var(--text-secondary);">Primary: <strong>Sora</strong> (Google Fonts)</p>
+                        <p style="color: var(--text-secondary);">Fallback: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif</p>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Type Scale</h3>
+                        <div class="typography-sample">
+                            <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem;">Heading 1 (2.5rem / 40px)</h1>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem;">Font weight: 800, Line height: 1.2</p>
+                        </div>
+                        <div class="typography-sample">
+                            <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem;">Heading 2 (2rem / 32px)</h2>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem;">Font weight: 800, Line height: 1.2</p>
+                        </div>
+                        <div class="typography-sample">
+                            <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">Heading 3 (1.5rem / 24px)</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem;">Font weight: 700, Line height: 1.2</p>
+                        </div>
+                        <div class="typography-sample">
+                            <h4 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Heading 4 (1.25rem / 20px)</h4>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem;">Font weight: 600, Line height: 1.5</p>
+                        </div>
+                        <div class="typography-sample">
+                            <p style="font-size: 1rem; margin-bottom: 0.5rem;">Body Text (1rem / 16px)</p>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem;">Font weight: 400, Line height: 1.6</p>
+                        </div>
+                        <div class="typography-sample">
+                            <p style="font-size: 0.875rem; margin-bottom: 0.5rem;">Small Text (0.875rem / 14px)</p>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem;">Font weight: 400, Line height: 1.5</p>
+                        </div>
+                        <div class="typography-sample">
+                            <p style="font-size: 0.75rem; margin-bottom: 0.5rem;">Extra Small (0.75rem / 12px)</p>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem;">Font weight: 400, Line height: 1.5</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Text Utilities</h3>
+                        <div class="component-demo">
+                            <p class="gradient-text" style="font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem;">Gradient Text</p>
+                            <p style="color: var(--accent-primary); margin-bottom: 1rem;">Accent Text (Primary Color)</p>
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Secondary Text</p>
+                            <p style="font-weight: 600;">Bold Text (600)</p>
+                            <p style="font-weight: 800; letter-spacing: -0.02em;">Extrabold Heading (800)</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Components Section -->
+                <section id="components" class="section">
+                    <h2 class="section-title">Components</h2>
+                    <p class="section-subtitle">Reusable UI components and their variants</p>
+
+                    <div class="card">
+                        <h3 class="card-title">Buttons</h3>
+                        <div class="component-demo">
+                            <button class="btn btn-primary">Primary Button</button>
+                            <button class="btn btn-secondary">Secondary Button</button>
+                            <button class="btn btn-primary" disabled>Disabled Button</button>
+                        </div>
+                        <div class="code-block">
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+}
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Cards</h3>
+                        <div class="component-demo">
+                            <div class="card" style="margin: 0;">
+                                <h4 style="margin-bottom: 0.5rem;">Surface Card</h4>
+                                <p style="color: var(--text-secondary); font-size: 0.875rem;">Standard card component with gradient background and border.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Badges</h3>
+                        <div class="component-demo">
+                            <span class="persona-badge achiever">🏆 Achiever</span>
+                            <span class="persona-badge explorer">🔍 Explorer</span>
+                            <span class="persona-badge socializer">🤝 Socializer</span>
+                            <span class="persona-badge killer">⚔️ Killer</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Progress Bars</h3>
+                        <div class="component-demo">
+                            <div style="background: var(--bg-color); height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 1rem;">
+                                <div style="background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%); height: 100%; width: 60%;"></div>
+                            </div>
+                            <div style="background: var(--bg-color); height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div style="background: linear-gradient(90deg, var(--persona-achiever) 0%, #FCD34D 100%); height: 100%; width: 80%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Personas Section -->
+                <section id="personas" class="section">
+                    <h2 class="section-title">Player Personas</h2>
+                    <p class="section-subtitle">Bartle's Taxonomy implementation with persona-specific UI variants</p>
+
+                    <div class="card">
+                        <h3 class="card-title">Persona Detection</h3>
+                        <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+                            Player personas are automatically detected based on user behavior patterns:
+                        </p>
+                        <ul style="margin-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+                            <li><strong>Achiever:</strong> High badge count, level, and impact score</li>
+                            <li><strong>Explorer:</strong> Original posts, customized content, exploration missions</li>
+                            <li><strong>Socializer:</strong> Peer badges received, comments generated, team participation</li>
+                            <li><strong>Killer:</strong> High leaderboard position, competitive ranking</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Persona-Specific UI Examples</h3>
+                        
+                        <div class="persona-demo persona-achiever-demo">
+                            <h4 style="margin-bottom: 0.5rem; color: var(--persona-achiever);">🏆 Achiever Persona</h4>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
+                                Emphasis on achievements, badges, and progress tracking.
+                            </p>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <span class="persona-badge achiever">🏆 Achiever</span>
+                                <button class="btn" style="background: linear-gradient(135deg, var(--persona-achiever) 0%, #FCD34D 100%); color: white;">Achievement Score</button>
+                            </div>
+                        </div>
+
+                        <div class="persona-demo persona-explorer-demo">
+                            <h4 style="margin-bottom: 0.5rem; color: var(--persona-explorer);">🔍 Explorer Persona</h4>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
+                                Emphasis on content creation, discovery, and creative expression.
+                            </p>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <span class="persona-badge explorer">🔍 Explorer</span>
+                                <button class="btn" style="background: linear-gradient(135deg, var(--persona-explorer) 0%, #60A5FA 100%); color: white;">Exploration Score</button>
+                            </div>
+                        </div>
+
+                        <div class="persona-demo persona-socializer-demo">
+                            <h4 style="margin-bottom: 0.5rem; color: var(--persona-socializer);">🤝 Socializer Persona</h4>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
+                                Emphasis on community, team collaboration, and social recognition.
+                            </p>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <span class="persona-badge socializer">🤝 Socializer</span>
+                                <button class="btn" style="background: linear-gradient(135deg, var(--persona-socializer) 0%, #34D399 100%); color: white;">Social Impact</button>
+                            </div>
+                        </div>
+
+                        <div class="persona-demo persona-killer-demo">
+                            <h4 style="margin-bottom: 0.5rem; color: var(--persona-killer);">⚔️ Killer Persona</h4>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
+                                Emphasis on competition, leaderboards, and ranking.
+                            </p>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <span class="persona-badge killer">⚔️ Killer</span>
+                                <button class="btn" style="background: linear-gradient(135deg, var(--persona-killer) 0%, #F87171 100%); color: white;">Competitive Score</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Persona-Specific Messaging</h3>
+                        <div class="component-demo">
+                            <p style="margin-bottom: 1rem;"><strong>Achiever:</strong> "Earn Achievements" - "Complete this campaign to unlock badges and level up!"</p>
+                            <p style="margin-bottom: 1rem;"><strong>Explorer:</strong> "Explore & Create" - "Discover new content and showcase your creativity!"</p>
+                            <p style="margin-bottom: 1rem;"><strong>Socializer:</strong> "Join the Community" - "Connect with your team and make an impact together!"</p>
+                            <p><strong>Killer:</strong> "Compete & Win" - "Climb the leaderboard and prove you're the best!"</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Patterns Section -->
+                <section id="patterns" class="section">
+                    <h2 class="section-title">Layout Patterns</h2>
+                    <p class="section-subtitle">Common layout structures and responsive behavior</p>
+
+                    <div class="card">
+                        <h3 class="card-title">Grid System</h3>
+                        <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+                            Uses Tailwind CSS grid utilities with responsive breakpoints:
+                        </p>
+                        <ul style="margin-left: 1.5rem; color: var(--text-secondary);">
+                            <li><strong>Mobile:</strong> Single column (grid-cols-1)</li>
+                            <li><strong>Tablet:</strong> 2 columns (md:grid-cols-2)</li>
+                            <li><strong>Desktop:</strong> 12-column system (lg:grid-cols-12)</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Animations</h3>
+                        <div class="component-demo">
+                            <div style="animation: fadeIn 0.5s ease-out;">
+                                <p>Fade In Animation</p>
+                            </div>
+                        </div>
+                        <div class="code-block">
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Spacing Section -->
+                <section id="spacing" class="section">
+                    <h2 class="section-title">Spacing Scale</h2>
+                    <p class="section-subtitle">Consistent spacing system based on 4px increments</p>
+
+                    <div class="card">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <div>
+                                <div style="background: var(--accent-primary); height: 4px; margin-bottom: 0.5rem;"></div>
+                                <p style="font-size: 0.875rem;"><strong>XS:</strong> 0.25rem (4px)</p>
+                            </div>
+                            <div>
+                                <div style="background: var(--accent-primary); height: 8px; margin-bottom: 0.5rem;"></div>
+                                <p style="font-size: 0.875rem;"><strong>SM:</strong> 0.5rem (8px)</p>
+                            </div>
+                            <div>
+                                <div style="background: var(--accent-primary); height: 16px; margin-bottom: 0.5rem;"></div>
+                                <p style="font-size: 0.875rem;"><strong>MD:</strong> 1rem (16px)</p>
+                            </div>
+                            <div>
+                                <div style="background: var(--accent-primary); height: 24px; margin-bottom: 0.5rem;"></div>
+                                <p style="font-size: 0.875rem;"><strong>LG:</strong> 1.5rem (24px)</p>
+                            </div>
+                            <div>
+                                <div style="background: var(--accent-primary); height: 32px; margin-bottom: 0.5rem;"></div>
+                                <p style="font-size: 0.875rem;"><strong>XL:</strong> 2rem (32px)</p>
+                            </div>
+                            <div>
+                                <div style="background: var(--accent-primary); height: 48px; margin-bottom: 0.5rem;"></div>
+                                <p style="font-size: 0.875rem;"><strong>2XL:</strong> 3rem (48px)</p>
+                            </div>
+                            <div>
+                                <div style="background: var(--accent-primary); height: 64px; margin-bottom: 0.5rem;"></div>
+                                <p style="font-size: 0.875rem;"><strong>3XL:</strong> 4rem (64px)</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const target = document.querySelector(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+
