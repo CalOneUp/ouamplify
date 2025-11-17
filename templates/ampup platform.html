@@ -7104,7 +7104,7 @@
                             })()}</h3>
                             <div class="flex gap-2">
                                 <button onclick="showLeaderboardDashboard()" class="text-xs text-accent-primary hover:underline font-semibold">View Dashboard</button>
-                                <select id="leaderboard-category" class="text-xs bg-bg-color border border-border-color rounded-lg px-3 py-1.5 text-text-primary" onchange="renderRoster()">
+                                <select id="leaderboard-category" class="text-xs bg-bg-color border border-border-color rounded-lg px-3 py-1.5 text-text-primary" onchange="if(typeof renderRoster === 'function') { renderRoster(); } else { console.warn('renderRoster not available'); }">
                                     <option value="overall">Overall</option>
                                     <option value="this-month">This Month</option>
                                     <option value="this-campaign">This Campaign</option>
@@ -7126,20 +7126,31 @@
                     }, 50);
                 }, 150); // Small delay to show skeleton
             
-            // Re-initialize toggle buttons for the new content
+            // Re-initialize toggle buttons for the new content - remove old listeners first
             document.querySelectorAll('.toggle-button').forEach(button => {
-                button.addEventListener('click', function() {
+                // Remove any existing listeners by cloning the button
+                const newButton = button.cloneNode(true);
+                button.parentNode.replaceChild(newButton, button);
+                
+                newButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     const targetId = this.dataset.target;
                     const section = document.getElementById(targetId);
-                    if (!section) return;
+                    if (!section) {
+                        logger.warn('Toggle target not found:', targetId);
+                        return;
+                    }
                     
                     const isCollapsed = section.classList.contains('collapsed');
+                    const icon = this.querySelector('.icon');
                     const textSpan = this.querySelector('span:first-child span:last-child');
                     
                     if (isCollapsed) {
                         section.classList.remove('collapsed');
                         section.style.maxHeight = section.scrollHeight + 'px';
                         this.classList.add('expanded');
+                        if (icon) icon.textContent = '▲';
                         if (textSpan && textSpan.textContent.includes('Show')) {
                             textSpan.textContent = textSpan.textContent.replace('Show ', 'Hide ');
                         }
@@ -7147,6 +7158,7 @@
                         section.classList.add('collapsed');
                         section.style.maxHeight = '0';
                         this.classList.remove('expanded');
+                        if (icon) icon.textContent = '▼';
                         if (textSpan && textSpan.textContent.includes('Hide')) {
                             textSpan.textContent = textSpan.textContent.replace('Hide ', 'Show ');
                         }
@@ -8043,33 +8055,52 @@
                     participateBtn.addEventListener('click', handleParticipation);
                 }
             }
-            // Toggle button handlers
+            // Toggle button handlers - remove old listeners first to prevent duplicates
             document.querySelectorAll('.toggle-button').forEach(button => {
-                button.addEventListener('click', function() {
+                // Remove any existing listeners by cloning the button
+                const newButton = button.cloneNode(true);
+                button.parentNode.replaceChild(newButton, button);
+                
+                newButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     const targetId = this.dataset.target;
                     const section = document.getElementById(targetId);
-                    if (!section) return;
+                    if (!section) {
+                        logger.warn('Toggle target not found:', targetId);
+                        return;
+                    }
                     
                     const isCollapsed = section.classList.contains('collapsed');
+                    const icon = this.querySelector('.icon');
                     const textSpan = this.querySelector('span:first-child span:last-child');
                     
                     if (isCollapsed) {
                         section.classList.remove('collapsed');
                         section.style.maxHeight = section.scrollHeight + 'px';
                         this.classList.add('expanded');
+                        if (icon) icon.textContent = '▲';
                         if (textSpan && textSpan.textContent.includes('Show')) {
                             textSpan.textContent = textSpan.textContent.replace('Show ', 'Hide ');
+                        } else if (textSpan && textSpan.textContent.includes('View All')) {
+                            textSpan.textContent = 'Hide';
                         }
                     } else {
                         section.classList.add('collapsed');
                         section.style.maxHeight = '0';
                         this.classList.remove('expanded');
+                        if (icon) icon.textContent = '▼';
                         if (textSpan && textSpan.textContent.includes('Hide')) {
-                            textSpan.textContent = textSpan.textContent.replace('Hide ', 'Show ');
+                            textSpan.textContent = textSpan.textContent.replace('Hide', 'View All');
                         }
                     }
                 });
             });
+            
+            // Ensure archive is rendered
+            if (typeof renderArchive === 'function') {
+                renderArchive();
+            }
             
                     // Add content-loaded animation
                     setTimeout(function() {
