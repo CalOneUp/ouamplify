@@ -2729,6 +2729,38 @@
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(190, 56, 243, 0.03) 100%);
             border-radius: 16px;
             border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-mini:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(190, 56, 243, 0.15);
+        }
+        
+        /* Dashboard Hero Styles */
+        #dashboard-hero .surface-card {
+            backdrop-filter: blur(10px);
+        }
+        
+        #dashboard-hero .bg-bg-color\/60 {
+            transition: all 0.3s ease;
+        }
+        
+        #dashboard-hero .bg-bg-color\/60:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(190, 56, 243, 0.2);
+            border-color: var(--accent-primary);
+        }
+        
+        /* Improved campaign card spacing */
+        #active-drop .surface-card {
+            margin-bottom: 1.5rem;
+        }
+        
+        #active-drop .reward-card,
+        #active-drop .success-card {
+            margin-bottom: 2rem;
         }
 
         /* Image Overlay Badges */
@@ -4163,9 +4195,14 @@
 
         <!-- Main App View -->
         <main id="main-app" class="hidden view-container" data-persona="" role="main" aria-label="Main application content">
+            <!-- Hero Stats Section -->
+            <div id="dashboard-hero" class="mb-6 md:mb-8">
+                <!-- Hero stats will be rendered here -->
+            </div>
+            
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
                 <!-- Main Content -->
-                <div class="lg:col-span-8">
+                <div class="lg:col-span-8 space-y-6">
                     <!-- Active Campaign -->
                     <section id="active-drop" class="mb-6">
                         <!-- Campaign content rendered here -->
@@ -6651,6 +6688,102 @@
         }
 
         // --- RENDER FUNCTIONS --- //
+        function renderDashboardHero() {
+            const heroEl = document.getElementById('dashboard-hero');
+            if (!heroEl) return;
+            
+            const user = appState.currentUser;
+            if (!user) return;
+            
+            const allUsers = [...appState.crew, user].filter((v, i, a) => 
+                a.findIndex(t => t.email === v.email) === i && v
+            );
+            
+            const impactScore = getUserImpactScore(user, allUsers, appState.performanceData, appState.participationData);
+            const availableSpins = user.wheelSpins || 0;
+            const totalHype = user.totalHype || 0;
+            const activeDrop = appState.drops.find(d => d.status === 'ACTIVE');
+            const hasParticipated = user && appState.participationData[user.email] && 
+                appState.participationData[user.email].dropId === activeDrop?.id;
+            
+            // Calculate rank
+            const sortedCrew = allUsers
+                .map(m => ({ ...m, score: m.totalHype || 0 }))
+                .sort((a, b) => b.score - a.score);
+            const userRank = sortedCrew.findIndex(m => m.email === user.email) + 1;
+            const totalPlayers = sortedCrew.length;
+            
+            heroEl.innerHTML = `
+                <div class="surface-card p-6 md:p-8 rounded-2xl bg-gradient-to-br from-purple-900/20 via-pink-900/20 to-blue-900/20 border-2 border-accent-primary/30 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-accent-primary/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+                    <div class="absolute bottom-0 left-0 w-48 h-48 bg-pink-500/10 rounded-full blur-2xl -ml-24 -mb-24"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-6">
+                            <div>
+                                <h1 class="text-3xl md:text-4xl font-extrabold-heading gradient-text mb-2">
+                                    Welcome back, ${escapeHtml(user.name.split(' ')[0])}! 👋
+                                </h1>
+                                <p class="text-secondary text-lg">Ready to make an impact?</p>
+                            </div>
+                            ${user.playerPersona ? `
+                                <div class="flex items-center gap-3 px-4 py-2 bg-bg-color/50 rounded-xl border border-accent-primary/30">
+                                    <span class="text-2xl">${user.playerPersona === 'achiever' ? '🏆' : user.playerPersona === 'explorer' ? '🔍' : user.playerPersona === 'socializer' ? '🤝' : '⚔️'}</span>
+                                    <div>
+                                        <div class="text-xs text-secondary uppercase tracking-wide">Player Type</div>
+                                        <div class="font-bold text-sm">${user.playerPersona.charAt(0).toUpperCase() + user.playerPersona.slice(1)}</div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="bg-bg-color/60 backdrop-blur-sm p-4 rounded-xl border border-accent-primary/20">
+                                <div class="text-xs text-secondary uppercase tracking-wide mb-2">Impact Score</div>
+                                <div class="text-3xl md:text-4xl font-extrabold-heading gradient-text mb-1">${impactScore.toLocaleString()}</div>
+                                <div class="text-xs text-secondary">Your total impact</div>
+                            </div>
+                            
+                            <div class="bg-bg-color/60 backdrop-blur-sm p-4 rounded-xl border border-accent-primary/20">
+                                <div class="text-xs text-secondary uppercase tracking-wide mb-2">Total Points</div>
+                                <div class="text-3xl md:text-4xl font-extrabold-heading gradient-text mb-1">${totalHype.toLocaleString()}</div>
+                                <div class="text-xs text-secondary">All-time points</div>
+                            </div>
+                            
+                            <div class="bg-bg-color/60 backdrop-blur-sm p-4 rounded-xl border border-accent-primary/20">
+                                <div class="text-xs text-secondary uppercase tracking-wide mb-2">Wheel Spins</div>
+                                <div class="text-3xl md:text-4xl font-extrabold-heading gradient-text mb-1">${availableSpins}</div>
+                                <div class="text-xs text-secondary">
+                                    ${availableSpins > 0 ? '<a href="#" onclick="event.preventDefault(); if(window.showRewardsMenu) window.showRewardsMenu(); return false;" class="accent-text hover:underline">Spin now!</a>' : 'Earn more spins'}
+                                </div>
+                            </div>
+                            
+                            <div class="bg-bg-color/60 backdrop-blur-sm p-4 rounded-xl border border-accent-primary/20">
+                                <div class="text-xs text-secondary uppercase tracking-wide mb-2">Your Rank</div>
+                                <div class="text-3xl md:text-4xl font-extrabold-heading gradient-text mb-1">#${userRank}</div>
+                                <div class="text-xs text-secondary">of ${totalPlayers} players</div>
+                            </div>
+                        </div>
+                        
+                        ${activeDrop && !hasParticipated ? `
+                            <div class="mt-6 p-4 bg-accent-primary/10 rounded-xl border border-accent-primary/30 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl">🎯</span>
+                                    <div>
+                                        <div class="font-semibold text-base">Active Campaign Available!</div>
+                                        <div class="text-sm text-secondary">Join "${escapeHtml(activeDrop.name)}" to earn points and spins</div>
+                                    </div>
+                                </div>
+                                <button onclick="document.getElementById('active-drop')?.scrollIntoView({ behavior: 'smooth', block: 'start' });" class="btn-primary px-4 py-2 text-sm">
+                                    View Campaign →
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
         function renderAuthSection() {
             if (appState.currentUser) {
                 const user = appState.currentUser;
@@ -9876,6 +10009,8 @@
                 renderNavigation();
                 logger.log('Rendering auth section...');
                 renderAuthSection();
+                logger.log('Rendering dashboard hero...');
+                renderDashboardHero();
                 logger.log('Rendering drop...');
                 renderDrop();
                 logger.log('Rendering sidebar...');
