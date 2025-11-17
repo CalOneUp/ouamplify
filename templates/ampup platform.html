@@ -4201,12 +4201,7 @@
             </div>
             
             <div class="space-y-6">
-                <!-- Active Campaign Section -->
-                <section id="active-drop" class="mb-6">
-                    <!-- Campaign content rendered here -->
-                </section>
-                
-                <!-- Campaigns Grid: Active and Past -->
+                <!-- Campaigns Overview Grid -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Active Campaigns Card -->
                     <div id="active-campaigns-card" class="surface-card p-6">
@@ -4219,38 +4214,27 @@
                     </div>
                 </div>
                 
-                <!-- Quick Stats & Leaderboard Row -->
+                <!-- Account-Wide Stats & Leaderboard -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <!-- Quick Stats -->
+                    <!-- Account Stats -->
                     <div class="lg:col-span-5 space-y-6" id="dashboard-quick-stats">
                         <!-- Quick stats will be rendered here -->
                     </div>
                     
-                    <!-- Leaderboard Preview -->
+                    <!-- Account-Wide Leaderboard -->
                     <div class="lg:col-span-7">
-                        <div id="dashboard-leaderboard-preview" class="surface-card p-6">
-                            <!-- Leaderboard preview will be rendered here -->
+                        <div id="dashboard-account-leaderboard" class="surface-card p-6">
+                            <!-- Account-wide leaderboard will be rendered here -->
                         </div>
                     </div>
                 </div>
-                
-                <!-- Past Campaigns Archive (Legacy section, kept for compatibility) -->
-                <section id="drop-archive" class="mb-6">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xl md:text-2xl font-extrabold-heading">All Past Campaigns</h3>
-                        <button class="toggle-button text-sm rounded-xl" data-target="archive-section">
-                            <span class="text-sm">View All</span>
-                            <span class="icon text-xs">▼</span>
-                        </button>
-                    </div>
-                    <div class="collapsible-section collapsed" id="archive-section">
-                        <div id="archive-log" class="space-y-4">
-                            <!-- History content rendered here -->
-                        </div>
-                    </div>
-                </section>
             </div>
         </main>
+
+        <!-- Campaign View -->
+        <div id="campaign-screen" class="hidden view-container">
+            <!-- Campaign content rendered here -->
+        </div>
 
         <!-- Drop Recap View -->
         <div id="recap-screen" class="hidden view-container">
@@ -5120,6 +5104,10 @@
             
             if (view === 'main') {
                 breadcrumbs.push({ label: 'Dashboard', view: 'main', active: true });
+            } else if (view === 'campaign') {
+                breadcrumbs.push({ label: 'Dashboard', view: 'main' });
+                const drop = appState.drops.find(d => d.id === context?.campaignId);
+                breadcrumbs.push({ label: drop ? drop.name : 'Campaign', view: 'campaign', active: true });
             } else if (view === 'recap') {
                 breadcrumbs.push({ label: 'Dashboard', view: 'main' });
                 breadcrumbs.push({ label: 'Campaign Recap', view: 'recap', active: true });
@@ -5250,7 +5238,9 @@
             // Hide all views with transition
             const views = [loginScreen, mainApp, recapScreen, playerScreen];
             const adminScreen = document.getElementById('admin-screen');
+            const campaignScreen = document.getElementById('campaign-screen');
             if (adminScreen) views.push(adminScreen);
+            if (campaignScreen) views.push(campaignScreen);
             
             views.forEach(function(viewEl) {
                 if (viewEl) {
@@ -5269,6 +5259,7 @@
                 else if (view === 'recap') targetView = recapScreen;
                 else if (view === 'player' && playerScreen) targetView = playerScreen;
                 else if (view === 'admin' && adminScreen) targetView = adminScreen;
+                else if (view === 'campaign' && campaignScreen) targetView = campaignScreen;
                 
                 if (targetView) {
                     targetView.classList.remove('hidden');
@@ -5288,6 +5279,11 @@
                 // Special handling for admin view
                 if (view === 'admin' && adminScreen) {
                     renderAdminDashboard();
+                }
+                
+                // Special handling for campaign view
+                if (view === 'campaign' && campaignScreen && context && context.campaignId) {
+                    renderCampaignPage(context.campaignId);
                 }
             }, 150);
         }
@@ -6840,7 +6836,7 @@
                         const userClicks = user ? (dropPerf[user.email.toLowerCase()] || 0) : 0;
                         
                         return `
-                            <div class="bg-bg-color p-4 rounded-xl border-2 ${hasParticipated ? 'border-green-400/50' : 'border-accent-primary/30'} cursor-pointer hover:border-accent-primary transition-all" onclick="document.getElementById('active-drop')?.scrollIntoView({ behavior: 'smooth', block: 'start' });">
+                            <div class="bg-bg-color p-4 rounded-xl border-2 ${hasParticipated ? 'border-green-400/50' : 'border-accent-primary/30'} cursor-pointer hover:border-accent-primary transition-all" onclick="if(window.switchView) window.switchView('campaign', { campaignId: '${drop.id}' });">
                                 <div class="flex items-start justify-between mb-3">
                                     <div class="flex-1">
                                         <h4 class="font-bold text-lg mb-1">${escapeHtml(drop.name)}</h4>
@@ -6848,7 +6844,7 @@
                                     </div>
                                     ${hasParticipated ? '<span class="badge green text-xs ml-2">Joined</span>' : ''}
                                 </div>
-                                <div class="grid grid-cols-3 gap-3 text-xs">
+                                <div class="grid grid-cols-3 gap-3 text-xs mb-3">
                                     <div>
                                         <div class="font-bold accent-text">${participants}</div>
                                         <div class="text-secondary">Players</div>
@@ -6862,6 +6858,9 @@
                                         <div class="text-secondary">Your Clicks</div>
                                     </div>
                                 </div>
+                                <button class="w-full btn-primary text-sm py-2">
+                                    View Campaign →
+                                </button>
                             </div>
                         `;
                     }).join('')}
@@ -7012,65 +7011,79 @@
             `;
         }
         
-        function renderDashboardLeaderboardPreview() {
-            const previewEl = document.getElementById('dashboard-leaderboard-preview');
-            if (!previewEl) return;
+        function renderDashboardAccountLeaderboard() {
+            const leaderboardEl = document.getElementById('dashboard-account-leaderboard');
+            if (!leaderboardEl) return;
             
             const user = appState.currentUser;
             if (!user) return;
             
-            const allCrew = [...appState.crew];
-            if (user) {
-                const existingUser = allCrew.find(c => c.email === user.email);
-                if (!existingUser) {
-                    allCrew.push(user);
-                }
-            }
+            const allUsers = [...appState.crew, user].filter((v, i, a) => 
+                a.findIndex(t => t.email === v.email) === i && v
+            );
             
-            const sortedCrew = allCrew
-                .map(m => ({ ...m, score: m.totalHype || 0 }))
-                .sort((a, b) => b.score - a.score)
-                .slice(0, 5);
+            // Calculate account-wide scores
+            const sortedUsers = allUsers
+                .map(m => {
+                    const impactScore = getUserImpactScore(m, allUsers, appState.performanceData, appState.participationData);
+                    return { ...m, score: impactScore };
+                })
+                .sort((a, b) => b.score - a.score);
             
-            const userRank = sortedCrew.findIndex(m => m.email === user.email) + 1;
+            const userRank = sortedUsers.findIndex(m => m.email === user.email) + 1;
             
-            previewEl.innerHTML = `
+            leaderboardEl.innerHTML = `
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-extrabold-heading flex items-center gap-2">
                         <span>🏆</span>
-                        <span>Top Players</span>
+                        <span>Account Leaderboard</span>
                     </h3>
-                    <button class="text-sm accent-text hover:underline font-semibold" onclick="document.getElementById('roster-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });">
-                        View Full Leaderboard →
-                    </button>
+                    <div class="text-sm text-secondary">
+                        Your Rank: <span class="font-bold accent-text">#${userRank}</span>
+                    </div>
                 </div>
-                <div class="space-y-3">
-                    ${sortedCrew.map((member, index) => {
+                <div class="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                    ${sortedUsers.slice(0, 10).map((member, index) => {
                         const isCurrentUser = member.email === user.email;
                         const rank = index + 1;
                         const rankEmoji = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+                        const impactScore = getUserImpactScore(member, allUsers, appState.performanceData, appState.participationData);
+                        const participatedDrops = (member.participatedDrops || []).length;
+                        const totalClicks = Object.values(appState.performanceData || {}).reduce((sum, dropData) => {
+                            return sum + (dropData[member.email.toLowerCase()] || 0);
+                        }, 0);
                         
                         return `
                             <div class="flex items-center gap-3 p-3 bg-bg-color rounded-lg ${isCurrentUser ? 'border-2 border-accent-primary' : 'border border-border-color'} hover:border-accent-primary/50 transition-all cursor-pointer" onclick="if(window.handleViewPlayer) window.handleViewPlayer('${member.email}');">
-                                <div class="flex items-center gap-3 flex-1">
-                                    <div class="text-lg font-bold ${rank <= 3 ? 'accent-text' : 'text-secondary'}">${rankEmoji || '#' + rank}</div>
+                                <div class="flex items-center gap-3 flex-1 min-w-0">
+                                    <div class="text-lg font-bold ${rank <= 3 ? 'accent-text' : 'text-secondary'} flex-shrink-0">${rankEmoji || '#' + rank}</div>
                                     ${getAvatarHTML(member.name, member.email, 'sm')}
-                                    <div class="flex-1">
+                                    <div class="flex-1 min-w-0">
                                         <div class="font-semibold text-sm flex items-center gap-2">
-                                            ${escapeHtml(member.name)}
-                                            ${isCurrentUser ? '<span class="badge purple text-xs">You</span>' : ''}
+                                            <span class="truncate">${escapeHtml(member.name)}</span>
+                                            ${isCurrentUser ? '<span class="badge purple text-xs flex-shrink-0">You</span>' : ''}
                                         </div>
-                                        <div class="text-xs text-secondary">${member.department || 'Team Member'}</div>
+                                        <div class="text-xs text-secondary flex gap-3">
+                                            <span>${participatedDrops} campaigns</span>
+                                            <span>${totalClicks} clicks</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="text-right">
-                                    <div class="font-bold accent-text">${(member.totalHype || 0).toLocaleString()}</div>
-                                    <div class="text-xs text-secondary">Points</div>
+                                <div class="text-right flex-shrink-0">
+                                    <div class="font-bold accent-text">${impactScore.toLocaleString()}</div>
+                                    <div class="text-xs text-secondary">Impact</div>
                                 </div>
                             </div>
                         `;
                     }).join('')}
                 </div>
+                ${sortedUsers.length > 10 ? `
+                    <div class="mt-4 text-center">
+                        <button class="text-sm accent-text hover:underline font-semibold" onclick="document.getElementById('roster-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });">
+                            View Full Leaderboard (${sortedUsers.length} players) →
+                        </button>
+                    </div>
+                ` : ''}
             `;
         }
         
@@ -7788,6 +7801,351 @@
                 </div>
             `;
         }
+        function renderCampaignPage(campaignId) {
+            const campaignScreen = document.getElementById('campaign-screen');
+            if (!campaignScreen) return;
+            
+            const drop = appState.drops.find(d => d.id === campaignId);
+            if (!drop) {
+                campaignScreen.innerHTML = `
+                    <div class="surface-card p-6 text-center">
+                        <div class="text-4xl mb-4">❌</div>
+                        <h3 class="text-xl font-bold mb-2">Campaign Not Found</h3>
+                        <p class="text-secondary mb-4">The campaign you're looking for doesn't exist.</p>
+                        <button onclick="window.switchView('main')" class="btn-primary">Back to Dashboard</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            const user = appState.currentUser;
+            const hasParticipated = user && appState.participationData[user.email] && 
+                appState.participationData[user.email].dropId === drop.id;
+            const participation = hasParticipated ? appState.participationData[user.email] : null;
+            const dropPerf = appState.performanceData[drop.id] || {};
+            const clicks = user ? (dropPerf[user.email.toLowerCase()] || 0) : 0;
+            const shortLink = participation ? participation.shortLink : null;
+            
+            const participants = Object.keys(dropPerf).length;
+            const totalClicks = Object.values(dropPerf).reduce((sum, clicks) => sum + clicks, 0);
+            
+            // Get campaign-specific leaderboard
+            const allUsers = [...appState.crew, user].filter((v, i, a) => 
+                a.findIndex(t => t.email === v.email) === i && v
+            );
+            
+            const campaignLeaderboard = allUsers
+                .map(member => {
+                    const memberClicks = dropPerf[member.email.toLowerCase()] || 0;
+                    const memberParticipation = appState.participationData[member.email];
+                    const participationPoints = (memberParticipation && memberParticipation.dropId === drop.id) ? (memberParticipation.points || 0) : 0;
+                    const clickPoints = calculateClickPoints(memberClicks);
+                    const totalPoints = participationPoints + clickPoints;
+                    return { ...member, clicks: memberClicks, points: totalPoints };
+                })
+                .filter(m => m.points > 0 || m.clicks > 0)
+                .sort((a, b) => b.points - a.points);
+            
+            // Render the full campaign content (similar to what was in renderDrop)
+            // This will include the full campaign details, participation form, and campaign-specific leaderboard
+            campaignScreen.innerHTML = `
+                <div class="space-y-6">
+                    <!-- Back Button -->
+                    <button onclick="window.switchView('main')" class="flex items-center gap-2 text-secondary hover:text-text-primary transition-colors mb-4">
+                        <span>←</span>
+                        <span>Back to Dashboard</span>
+                    </button>
+                    
+                    <!-- Campaign Hero -->
+                    <div class="campaign-hero-card surface-card">
+                        ${drop.visualAssets && drop.visualAssets.length > 0 ? `
+                            <div class="relative mb-6">
+                                <img src="${escapeHtml(drop.visualAssets[0].url)}" alt="${escapeHtml(drop.name)}" class="w-full h-auto rounded-xl">
+                                <div class="absolute top-4 right-4 flex gap-2">
+                                    <span class="badge purple image-badge">${participants} Joined</span>
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="p-4 md:p-6">
+                            <h1 class="text-3xl md:text-4xl font-extrabold-heading gradient-text mb-4">${escapeHtml(drop.name)}</h1>
+                            <p class="text-lg md:text-xl text-secondary leading-relaxed mb-6">${escapeHtml(drop.objective)}</p>
+                            
+                            ${!hasParticipated ? `
+                                <div id="campaign-participation-form-container">
+                                    ${renderCampaignParticipationForm(drop)}
+                                </div>
+                            ` : `
+                                <div class="success-card p-6 mb-6">
+                                    <div class="flex items-center gap-2 mb-4">
+                                        <span class="text-2xl">🎉</span>
+                                        <h3 class="text-xl font-extrabold-heading">You're Participating!</h3>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <div class="text-sm text-secondary mb-1">Your Clicks</div>
+                                            <div class="text-3xl font-bold accent-text">${clicks}</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm text-secondary mb-1">Your Points</div>
+                                            <div class="text-3xl font-bold accent-text">${(participation.points || 0) + calculateClickPoints(clicks)}</div>
+                                        </div>
+                                    </div>
+                                    ${shortLink ? `
+                                        <div class="bg-bg-color p-4 rounded-lg">
+                                            <div class="text-sm font-semibold mb-2">Your Tracking Link</div>
+                                            <div class="flex items-center gap-2">
+                                                <code class="flex-1 text-sm accent-text">${shortLink}</code>
+                                                <button class="copy-link-button bg-gray-600 text-white px-4 py-2 rounded-lg text-sm" data-text="https://${shortLink}">Copy</button>
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                    
+                    <!-- Campaign Leaderboard -->
+                    <div class="surface-card p-6">
+                        <h2 class="text-2xl font-extrabold-heading mb-6 flex items-center gap-2">
+                            <span>🏆</span>
+                            <span>Campaign Leaderboard</span>
+                        </h2>
+                        ${campaignLeaderboard.length > 0 ? `
+                            <div class="space-y-3">
+                                ${campaignLeaderboard.map((member, index) => {
+                                    const isCurrentUser = member.email === user.email;
+                                    const rank = index + 1;
+                                    const rankEmoji = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+                                    
+                                    return `
+                                        <div class="flex items-center gap-3 p-4 bg-bg-color rounded-lg ${isCurrentUser ? 'border-2 border-accent-primary' : 'border border-border-color'} hover:border-accent-primary/50 transition-all cursor-pointer" onclick="if(window.handleViewPlayer) window.handleViewPlayer('${member.email}');">
+                                            <div class="flex items-center gap-3 flex-1">
+                                                <div class="text-xl font-bold ${rank <= 3 ? 'accent-text' : 'text-secondary'}">${rankEmoji || '#' + rank}</div>
+                                                ${getAvatarHTML(member.name, member.email, 'md')}
+                                                <div class="flex-1">
+                                                    <div class="font-semibold text-base flex items-center gap-2">
+                                                        ${escapeHtml(member.name)}
+                                                        ${isCurrentUser ? '<span class="badge purple text-xs">You</span>' : ''}
+                                                    </div>
+                                                    <div class="text-sm text-secondary">${member.department || 'Team Member'}</div>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="font-bold accent-text text-lg">${member.points.toLocaleString()}</div>
+                                                <div class="text-xs text-secondary">${member.clicks} clicks</div>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        ` : `
+                            <div class="text-center py-8 text-secondary">
+                                <p>No participants yet. Be the first to join!</p>
+                            </div>
+                        `}
+                    </div>
+                </div>
+            `;
+            
+            // Attach event listeners
+            setTimeout(function() {
+                document.querySelectorAll('.copy-link-button').forEach(button => {
+                    button.addEventListener('click', handleCopyText);
+                });
+                
+                // Attach participation form handlers
+                const participateBtn = document.getElementById('participate-button');
+                if (participateBtn) {
+                    participateBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        handleParticipation();
+                    });
+                }
+                
+                // Attach form change listeners for preview
+                const form = document.getElementById('participation-form');
+                if (form) {
+                    form.addEventListener('change', updatePointsPreview);
+                    updatePointsPreview();
+                }
+                
+                // Attach copy text buttons
+                document.querySelectorAll('.copy-text-button, .copy-link-button').forEach(button => {
+                    button.addEventListener('click', handleCopyText);
+                });
+                
+                const suggestBtn = document.getElementById('suggest-copy-button');
+                if (suggestBtn) suggestBtn.addEventListener('click', handleSuggestCopy);
+            }, 100);
+        }
+        
+        function renderCampaignParticipationForm(drop) {
+            // This will render the participation form for the campaign
+            // Similar to what was in renderDrop but simplified
+            const user = appState.currentUser;
+            const persona = (user && user.playerPersona) ? user.playerPersona.toLowerCase() : 'achiever';
+            
+            const joinMessages = {
+                'achiever': { emoji: '🏆', title: 'Earn Achievements', subtitle: 'Complete this campaign to unlock badges and level up!' },
+                'explorer': { emoji: '🔍', title: 'Explore & Create', subtitle: 'Discover new content and showcase your creativity!' },
+                'socializer': { emoji: '🤝', title: 'Join the Community', subtitle: 'Connect with your team and make an impact together!' },
+                'killer': { emoji: '⚔️', title: 'Compete & Win', subtitle: 'Climb the leaderboard and prove you\'re the best!' }
+            };
+            const joinMsg = joinMessages[persona] || joinMessages['achiever'];
+            
+            return `
+                <div class="reward-card p-6 mb-6">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="text-2xl">${joinMsg.emoji}</span>
+                        <h3 class="text-xl font-extrabold-heading">${joinMsg.title}</h3>
+                    </div>
+                    <p class="text-sm text-secondary mb-6">${joinMsg.subtitle}</p>
+                    
+                    <div id="participation-form-container">
+                        ${getParticipationFormHTML(drop)}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function getParticipationFormHTML(drop) {
+            // Return the participation form HTML (extracted from renderDrop)
+            // This is a simplified version - we'll use the existing form structure
+            return `
+                <div class="surface-card p-4 md:p-6 rounded-xl">
+                    <div id="participation-form" class="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
+                        <!-- Choose Copy Style -->
+                        <div>
+                            <h5 class="font-bold text-lg mb-3">Choose Your Copy Style</h5>
+                            <p class="text-sm text-secondary mb-4">Your choice affects how many points and spins you earn! 💎</p>
+                            <div class="space-y-3">
+                                <label class="flex items-center gap-3 p-4 bg-bg-color rounded-lg cursor-pointer hover:bg-surface-color transition-all border border-border-color hover:border-accent-primary/50">
+                                    <input type="radio" name="copyType" value="provided" checked onchange="handleCopyTypeChange('provided'); updatePointsPreview();">
+                                    <div class="flex-1">
+                                        <div class="font-semibold text-base mb-1">Use Provided Copy</div>
+                                        <div class="text-sm text-secondary">0 bonus points - Quick & easy</div>
+                                    </div>
+                                </label>
+                                <label class="flex items-center gap-3 p-4 bg-bg-color rounded-lg cursor-pointer hover:bg-surface-color transition-all border border-border-color hover:border-accent-primary/50">
+                                    <input type="radio" name="copyType" value="customized" onchange="handleCopyTypeChange('customized'); updatePointsPreview();">
+                                    <div class="flex-1">
+                                        <div class="font-semibold text-base mb-1">Customize Copy</div>
+                                        <div class="text-sm text-secondary">+50 points & <strong class="accent-text">+1 Spin</strong></div>
+                                    </div>
+                                </label>
+                                <label class="flex items-center gap-3 p-4 bg-bg-color rounded-lg cursor-pointer hover:bg-surface-color transition-all border border-border-color hover:border-accent-primary/50">
+                                    <input type="radio" name="copyType" value="original" onchange="handleCopyTypeChange('original'); updatePointsPreview();">
+                                    <div class="flex-1">
+                                        <div class="font-semibold text-base mb-1">Write Original Copy</div>
+                                        <div class="text-sm text-secondary">+100 points & <strong class="accent-text">+2 Spins</strong></div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Customize Copy (if needed) -->
+                        <div id="copy-editor-container" class="hidden">
+                            <h5 class="font-bold text-lg mb-3">Write Your Copy</h5>
+                            <p class="text-sm text-secondary mb-4">Make it personal and engaging to maximize your impact! ✨</p>
+                            <label class="block text-sm font-semibold mb-2">
+                                Your Copy 
+                                <span class="tooltip">
+                                    <span style="color: var(--accent-primary);">ℹ️</span>
+                                    <span class="tooltip-text">Write your own post copy. Make it personal and engaging!</span>
+                                </span>
+                            </label>
+                            <textarea 
+                                id="custom-copy-editor" 
+                                class="copy-editor" 
+                                placeholder="Write your post copy here... Make it personal and engaging!"
+                                maxlength="500"
+                                oninput="updateCopyPreview(); updatePointsPreview();"
+                            ></textarea>
+                            <div class="character-count" id="char-count">0 / 500 characters</div>
+                            
+                            <div id="copy-preview-container" class="hidden mt-4">
+                                <label class="block text-sm font-semibold mb-2">Preview:</label>
+                                <div class="copy-preview" id="copy-preview"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Add Extras -->
+                        <div>
+                            <h5 class="font-bold text-lg mb-3">Add Extras (Optional)</h5>
+                            <p class="text-sm text-secondary mb-4">Boost your points and spins with these bonus options! 🎁</p>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <label class="flex items-center gap-3 p-4 bg-bg-color rounded-lg cursor-pointer hover:bg-surface-color transition-all border border-border-color hover:border-accent-primary/50">
+                                        <input type="checkbox" id="hasStory" onchange="updatePointsPreview()">
+                                        <div class="flex-1">
+                                            <div class="font-semibold text-base mb-1">Add Personal Story</div>
+                                            <div class="text-sm text-secondary">+75 points & <strong class="accent-text">+1&nbsp;Spin</strong></div>
+                                        </div>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-4 bg-bg-color rounded-lg cursor-pointer hover:bg-surface-color transition-all border border-border-color hover:border-accent-primary/50">
+                                        <input type="checkbox" id="hasCTA" onchange="updatePointsPreview()">
+                                        <div class="flex-1">
+                                            <div class="font-semibold text-base mb-1">Include Call-to-Action</div>
+                                            <div class="text-sm text-secondary">+25 points</div>
+                                        </div>
+                                    </label>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-base font-semibold mb-4">Share on Multiple Platforms:</label>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <label class="flex items-center gap-3 p-4 bg-bg-color rounded-lg cursor-pointer hover:bg-surface-color transition-all border border-border-color hover:border-accent-primary/50">
+                                            <input type="checkbox" id="shareLinkedIn" checked onchange="updatePointsPreview()">
+                                            <span class="font-semibold text-base">LinkedIn</span>
+                                        </label>
+                                        <label class="flex items-center gap-3 p-4 bg-bg-color rounded-lg cursor-pointer hover:bg-surface-color transition-all border border-border-color hover:border-accent-primary/50">
+                                            <input type="checkbox" id="shareTwitter" onchange="updatePointsPreview()">
+                                            <span class="font-semibold text-base">Twitter</span>
+                                        </label>
+                                    </div>
+                                    <p class="text-sm text-secondary mt-3">Share on 2+ platforms for +50 bonus points & <strong class="accent-text">+1&nbsp;Spin</strong>!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Review & Submit (Always Visible) -->
+                    <div class="mt-6 pt-6 border-t border-border-color">
+                        <div id="estimated-points" class="p-6 bg-gradient-to-r from-purple-900/20 to-pink-900/20 border-2 border-accent-primary rounded-xl mb-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="text-base font-semibold text-secondary">Estimated Rewards:</div>
+                                <div class="flex items-center gap-6">
+                                    <div class="text-right">
+                                        <div class="text-3xl font-extrabold-heading gradient-text" id="points-preview">100</div>
+                                        <div class="text-base font-semibold text-secondary">Points</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-3xl font-extrabold-heading gradient-text" id="spins-preview">0</div>
+                                        <div class="text-base font-semibold text-secondary">Spins</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-sm text-secondary space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <span>✓</span>
+                                    <span>Base participation: 100</span>
+                                </div>
+                                <div id="points-breakdown-text"></div>
+                                <div class="mt-4 pt-4 border-t border-accent-primary/30">
+                                    <div class="font-semibold mb-1">Plus click rewards:</div>
+                                    <div class="text-xs">10-15 points per click (tiered system)</div>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="participate-button" class="campaign-join-button text-white font-bold py-3 px-6 text-base md:text-lg w-full rounded-xl">
+                            Submit & Get My Link 🚀
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
         function renderDrop() {
             try {
                 logger.log('renderDrop called');
@@ -7799,34 +8157,67 @@
                     return;
                 }
                 
-                // Show skeleton while loading
-                terminal.innerHTML = `
-                    <div class="skeleton-card">
-                        <div class="skeleton skeleton-title"></div>
-                        <div class="skeleton skeleton-text"></div>
-                        <div class="skeleton skeleton-text short"></div>
-                    </div>
-                `;
-                
-                // Small delay to show skeleton, then render content
-                setTimeout(function() {
-                    if (!activeDrop) {
+                // Dashboard no longer shows full campaign - just a link
+                if (!activeDrop) {
                     terminal.innerHTML = `
                         <div class="empty-state">
                             <div class="empty-state-icon">🎉</div>
                             <h3 class="empty-state-title">All Drops Complete!</h3>
                             <p class="empty-state-description">Great work! You've completed all active campaigns. Stand by for the next exciting drop.</p>
-                            <div class="empty-state-action">
-                                <button onclick="renderArchive()" class="btn-secondary">View Past Campaigns</button>
-                            </div>
                         </div>
                     `;
                     return;
                 }
                 
-                logger.log('Rendering active drop:', activeDrop.name);
-                logger.log('Terminal element:', terminal);
-
+                // Show a simple card that links to the campaign page
+                const user = appState.currentUser;
+                const hasParticipated = user && appState.participationData[user.email] && 
+                    appState.participationData[user.email].dropId === activeDrop.id;
+                const dropPerf = appState.performanceData[activeDrop.id] || {};
+                const participants = Object.keys(dropPerf).length;
+                const totalClicks = Object.values(dropPerf).reduce((sum, clicks) => sum + clicks, 0);
+                
+                terminal.innerHTML = `
+                    <div class="surface-card p-6 cursor-pointer hover:border-accent-primary transition-all" onclick="if(window.switchView) window.switchView('campaign', { campaignId: '${activeDrop.id}' });">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-2xl font-extrabold-heading gradient-text mb-2">${escapeHtml(activeDrop.name)}</h3>
+                                <p class="text-secondary">${escapeHtml(activeDrop.objective)}</p>
+                            </div>
+                            ${hasParticipated ? '<span class="badge green">Joined</span>' : '<span class="badge purple">Active</span>'}
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 mb-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold accent-text">${participants}</div>
+                                <div class="text-xs text-secondary">Players</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold accent-text">${totalClicks}</div>
+                                <div class="text-xs text-secondary">Total Clicks</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold accent-text">${activeDrop.points || 100}+</div>
+                                <div class="text-xs text-secondary">Points Available</div>
+                            </div>
+                        </div>
+                        <button class="w-full btn-primary py-3">
+                            View Campaign Details →
+                        </button>
+                    </div>
+                `;
+            } catch(error) {
+                logger.error('Error in renderDrop:', error);
+                logger.error('Stack:', error.stack);
+                const terminal = document.getElementById('active-drop');
+                if (terminal) {
+                    terminal.innerHTML = `<div class="surface-card p-6"><h3 class="text-xl font-bold mb-2">Error Loading Campaign</h3><p class="text-secondary">Please refresh the page.</p><p class="text-xs text-secondary mt-2">Error: ${error.message}</p></div>`;
+                }
+            }
+        }
+        
+        // Legacy renderDrop code removed - campaigns now render on their own pages
+        // Keeping this comment for reference
+        /*
             const user = appState.currentUser;
             const persona = (user && user.playerPersona) ? user.playerPersona.toLowerCase() : 'achiever';
             logger.log('Current user:', user);
@@ -10307,8 +10698,8 @@
                 renderPastCampaigns();
                 logger.log('Rendering dashboard quick stats...');
                 renderDashboardQuickStats();
-                logger.log('Rendering dashboard leaderboard preview...');
-                renderDashboardLeaderboardPreview();
+                logger.log('Rendering dashboard account leaderboard...');
+                renderDashboardAccountLeaderboard();
                 logger.log('Rendering drop...');
                 renderDrop();
                 logger.log('Rendering sidebar...');
