@@ -4820,7 +4820,8 @@
                 totalHype: 1890,
                 badges: ['creative'],
                 followers: 1200,
-                isAdmin: true
+                isAdmin: true,
+                wheelSpins: 0
             },
             adminTab: 'campaigns',
             drops: [
@@ -4867,12 +4868,12 @@
                 }
             ],
             crew: [
-                { name: 'Alice Chen', email: 'alice@company.com', department: 'Engineering', participatedDrops: ['d002'], totalHype: 2850, badges: ['creative', 'growth-hacker'], followers: 1200 },
-                { name: 'Bob Martinez', email: 'bob@company.com', department: 'Marketing', participatedDrops: ['d002'], totalHype: 3420, badges: ['storyteller', 'team-player'], followers: 3500 },
-                { name: 'Charlie Kim', email: 'charlie@company.com', department: 'Engineering', participatedDrops: [], totalHype: 0, badges: [], followers: 800 },
-                { name: 'Diana Patel', email: 'diana@company.com', department: 'Sales', participatedDrops: ['d002'], totalHype: 4150, badges: ['king-of-clicks', 'first-responder'], followers: 2800 },
-                { name: 'Emma Wilson', email: 'emma@company.com', department: 'Marketing', participatedDrops: ['d002'], totalHype: 1890, badges: ['creative'], followers: 950 },
-                { name: 'Frank Thompson', email: 'frank@company.com', department: 'Sales', participatedDrops: ['d002'], totalHype: 2250, badges: ['team-player'], followers: 1500 }
+                { name: 'Alice Chen', email: 'alice@company.com', department: 'Engineering', participatedDrops: ['d002'], totalHype: 2850, badges: ['creative', 'growth-hacker'], followers: 1200, wheelSpins: 0 },
+                { name: 'Bob Martinez', email: 'bob@company.com', department: 'Marketing', participatedDrops: ['d002'], totalHype: 3420, badges: ['storyteller', 'team-player'], followers: 3500, wheelSpins: 0 },
+                { name: 'Charlie Kim', email: 'charlie@company.com', department: 'Engineering', participatedDrops: [], totalHype: 0, badges: [], followers: 800, wheelSpins: 0 },
+                { name: 'Diana Patel', email: 'diana@company.com', department: 'Sales', participatedDrops: ['d002'], totalHype: 4150, badges: ['king-of-clicks', 'first-responder'], followers: 2800, wheelSpins: 0 },
+                { name: 'Emma Wilson', email: 'emma@company.com', department: 'Marketing', participatedDrops: ['d002'], totalHype: 1890, badges: ['creative'], followers: 950, wheelSpins: 0 },
+                { name: 'Frank Thompson', email: 'frank@company.com', department: 'Sales', participatedDrops: ['d002'], totalHype: 2250, badges: ['team-player'], followers: 1500, wheelSpins: 0 }
             ],
             performanceData: {
                 'd002': { 
@@ -4906,6 +4907,7 @@
                 if (!appState.currentUser.impactScore) appState.currentUser.impactScore = 0;
                 if (!appState.currentUser.reputationScore) appState.currentUser.reputationScore = 0;
                 if (!appState.currentUser.playerPersona) appState.currentUser.playerPersona = 'Achiever';
+                if (!appState.currentUser.wheelSpins) appState.currentUser.wheelSpins = 0;
             }
         }
         
@@ -6678,7 +6680,7 @@
                 
                 let sidebarHTML = '';
             
-            // Persona badge
+            // Enhanced Persona Card
             if (user && user.playerPersona) {
                 const personaEmojis = {
                     'achiever': '🏆',
@@ -6692,14 +6694,24 @@
                     'socializer': 'Socializer',
                     'killer': 'Killer'
                 };
+                const personaDescriptions = {
+                    'achiever': 'You\'re driven by mastery and achievement. The UI highlights your progress, badges, and milestones to keep you motivated.',
+                    'explorer': 'You love discovering new features and content. The UI surfaces new campaigns, creative options, and exploration opportunities.',
+                    'socializer': 'You thrive on connection and collaboration. The UI emphasizes team leaderboards, social features, and community engagement.',
+                    'killer': 'You\'re competitive and love winning. The UI showcases rankings, competitive stats, and head-to-head comparisons.'
+                };
                 sidebarHTML += `
-                    <section class="surface-card mb-6">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-secondary">Player Type</span>
-                            <span class="persona-badge ${persona}">
-                                ${personaEmojis[persona] || '🎮'} ${personaNames[persona] || user.playerPersona}
-                            </span>
+                    <section class="surface-card mb-6 p-4">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="text-2xl">${personaEmojis[persona] || '🎮'}</span>
+                            <div>
+                                <div class="font-bold text-base">${personaNames[persona] || user.playerPersona}</div>
+                                <div class="text-xs text-secondary">Your Player Persona</div>
+                            </div>
                         </div>
+                        <p class="text-sm text-secondary leading-relaxed">
+                            ${personaDescriptions[persona] || 'Your experience is tailored to match your play style and preferences.'}
+                        </p>
                     </section>
                 `;
             }
@@ -7416,115 +7428,73 @@
                         </h4>
                         <p class="text-sm text-secondary mb-6">${joinMsg.subtitle}</p>
                         
-                        <!-- Step Indicator -->
-                        <div class="step-indicator mb-4 md:mb-6">
-                            <div class="step active" data-step="1">
-                                <div class="step-circle">1</div>
-                                <div class="step-label">Choose Copy</div>
-                            </div>
-                            <div class="step" data-step="2">
-                                <div class="step-circle">2</div>
-                                <div class="step-label">Customize</div>
-                            </div>
-                            <div class="step" data-step="3">
-                                <div class="step-circle">3</div>
-                                <div class="step-label">Add Extras</div>
-                            </div>
-                            <div class="step" data-step="4">
-                                <div class="step-circle">4</div>
-                                <div class="step-label">Review</div>
-                            </div>
-                        </div>
-                        
-                        <div id="participation-form">
-                            <!-- Step 1: Choose Copy Style -->
-                            <div class="step-content active" data-step="1">
-                                <div class="mb-6">
-                                    <h5 class="font-bold text-lg mb-2">Step 1: Choose Your Copy Style</h5>
-                                    <p class="text-sm text-secondary mb-6">Your choice affects how many points you earn! 💎</p>
-                                </div>
-                                <div class="space-y-3 mb-6">
+                        <div id="participation-form" class="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
+                            <!-- Choose Copy Style -->
+                            <div>
+                                <h5 class="font-bold text-lg mb-3">Choose Your Copy Style</h5>
+                                <p class="text-sm text-secondary mb-4">Your choice affects how many points and spins you earn! 💎</p>
+                                <div class="space-y-3">
                                     <label class="flex items-center gap-3 p-4 bg-bg-color rounded-lg cursor-pointer hover:bg-surface-color transition-all border border-border-color hover:border-accent-primary/50">
-                                        <input type="radio" name="copyType" value="provided" checked onchange="handleCopyTypeChange('provided'); updateStepVisibility();">
+                                        <input type="radio" name="copyType" value="provided" checked onchange="handleCopyTypeChange('provided'); updatePointsPreview();">
                                         <div class="flex-1">
                                             <div class="font-semibold text-base mb-1">Use Provided Copy</div>
                                             <div class="text-sm text-secondary">0 bonus points - Quick & easy</div>
                                         </div>
                                     </label>
                                     <label class="flex items-center gap-3 p-4 bg-bg-color rounded-lg cursor-pointer hover:bg-surface-color transition-all border border-border-color hover:border-accent-primary/50">
-                                        <input type="radio" name="copyType" value="customized" onchange="handleCopyTypeChange('customized'); updateStepVisibility();">
+                                        <input type="radio" name="copyType" value="customized" onchange="handleCopyTypeChange('customized'); updatePointsPreview();">
                                         <div class="flex-1">
                                             <div class="font-semibold text-base mb-1">Customize Copy</div>
-                                            <div class="text-sm text-secondary">+50 points - Edit provided copy</div>
+                                            <div class="text-sm text-secondary">+50 points & <strong class="accent-text">+1 Spin</strong></div>
                                         </div>
                                     </label>
                                     <label class="flex items-center gap-3 p-4 bg-bg-color rounded-lg cursor-pointer hover:bg-surface-color transition-all border border-border-color hover:border-accent-primary/50">
-                                        <input type="radio" name="copyType" value="original" onchange="handleCopyTypeChange('original'); updateStepVisibility();">
+                                        <input type="radio" name="copyType" value="original" onchange="handleCopyTypeChange('original'); updatePointsPreview();">
                                         <div class="flex-1">
                                             <div class="font-semibold text-base mb-1">Write Original Copy</div>
-                                            <div class="text-sm text-secondary">+100 points - Your own words</div>
+                                            <div class="text-sm text-secondary">+100 points & <strong class="accent-text">+2 Spins</strong></div>
                                         </div>
                                     </label>
                                 </div>
-                                <div class="step-navigation">
-                                    <div></div>
-                                    <button class="step-button bg-accent-primary text-white hover:opacity-90" onclick="goToStep(2)">
-                                        Next →
-                                    </button>
+                            </div>
+                            
+                            <!-- Customize Copy (if needed) -->
+                            <div id="copy-editor-container" class="hidden">
+                                <h5 class="font-bold text-lg mb-3">Write Your Copy</h5>
+                                <p class="text-sm text-secondary mb-4">Make it personal and engaging to maximize your impact! ✨</p>
+                                <label class="block text-sm font-semibold mb-2">
+                                    Your Copy 
+                                    <span class="tooltip">
+                                        <span style="color: var(--accent-primary);">ℹ️</span>
+                                        <span class="tooltip-text">Write your own post copy. Make it personal and engaging!</span>
+                                    </span>
+                                </label>
+                                <textarea 
+                                    id="custom-copy-editor" 
+                                    class="copy-editor" 
+                                    placeholder="Write your post copy here... Make it personal and engaging!"
+                                    maxlength="500"
+                                    oninput="updateCopyPreview(); updatePointsPreview();"
+                                ></textarea>
+                                <div class="character-count" id="char-count">0 / 500 characters</div>
+                                
+                                <div id="copy-preview-container" class="hidden mt-4">
+                                    <label class="block text-sm font-semibold mb-2">Preview:</label>
+                                    <div class="copy-preview" id="copy-preview"></div>
                                 </div>
                             </div>
                             
-                            <!-- Step 2: Customize Copy (if needed) -->
-                            <div class="step-content" data-step="2">
-                                <div class="mb-6">
-                                    <h5 class="font-bold text-lg mb-2">Step 2: Write Your Copy</h5>
-                                    <p class="text-sm text-secondary mb-6">Make it personal and engaging to maximize your impact! ✨</p>
-                                </div>
-                                <div id="copy-editor-container" class="hidden">
-                                    <label class="block text-sm font-semibold mb-2">
-                                        Your Copy 
-                                        <span class="tooltip">
-                                            <span style="color: var(--accent-primary);">ℹ️</span>
-                                            <span class="tooltip-text">Write your own post copy. Make it personal and engaging!</span>
-                                        </span>
-                                    </label>
-                                    <textarea 
-                                        id="custom-copy-editor" 
-                                        class="copy-editor" 
-                                        placeholder="Write your post copy here... Make it personal and engaging!"
-                                        maxlength="500"
-                                        oninput="updateCopyPreview()"
-                                    ></textarea>
-                                    <div class="character-count" id="char-count">0 / 500 characters</div>
-                                    
-                                    <div id="copy-preview-container" class="hidden mt-4">
-                                        <label class="block text-sm font-semibold mb-2">Preview:</label>
-                                        <div class="copy-preview" id="copy-preview"></div>
-                                    </div>
-                                </div>
-                                <div class="step-navigation">
-                                    <button class="step-button bg-gray-600 text-white hover:opacity-90" onclick="goToStep(1)">
-                                        ← Back
-                                    </button>
-                                    <button class="step-button bg-accent-primary text-white hover:opacity-90" onclick="goToStep(3)">
-                                        Next →
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <!-- Step 3: Add Extras -->
-                            <div class="step-content" data-step="3">
-                                <div class="mb-6">
-                                    <h5 class="font-bold text-lg mb-2">Step 3: Add Extras (Optional)</h5>
-                                    <p class="text-sm text-secondary mb-6">Boost your points with these bonus options! 🎁</p>
-                                </div>
-                                <div class="space-y-6">
+                            <!-- Add Extras -->
+                            <div>
+                                <h5 class="font-bold text-lg mb-3">Add Extras (Optional)</h5>
+                                <p class="text-sm text-secondary mb-4">Boost your points and spins with these bonus options! 🎁</p>
+                                <div class="space-y-4">
                                     <div class="grid grid-cols-2 gap-4">
                                         <label class="flex items-center gap-3 p-4 bg-bg-color rounded-lg cursor-pointer hover:bg-surface-color transition-all border border-border-color hover:border-accent-primary/50">
                                             <input type="checkbox" id="hasStory" onchange="updatePointsPreview()">
                                             <div class="flex-1">
                                                 <div class="font-semibold text-base mb-1">Add Personal Story</div>
-                                                <div class="text-sm text-secondary">+75 points</div>
+                                                <div class="text-sm text-secondary">+75 points & <strong class="accent-text">+1&nbsp;Spin</strong></div>
                                             </div>
                                         </label>
                                         <label class="flex items-center gap-3 p-4 bg-bg-color rounded-lg cursor-pointer hover:bg-surface-color transition-all border border-border-color hover:border-accent-primary/50">
@@ -7548,51 +7518,43 @@
                                                 <span class="font-semibold text-base">Twitter</span>
                                             </label>
                                         </div>
-                                        <p class="text-sm text-secondary mt-3">Share on 2+ platforms for +50 bonus points!</p>
+                                        <p class="text-sm text-secondary mt-3">Share on 2+ platforms for +50 bonus points & <strong class="accent-text">+1&nbsp;Spin</strong>!</p>
                                     </div>
-                                </div>
-                                <div class="step-navigation">
-                                    <button class="step-button bg-gray-600 text-white hover:opacity-90" onclick="goToStep(2)">
-                                        ← Back
-                                    </button>
-                                    <button class="step-button bg-accent-primary text-white hover:opacity-90" onclick="goToStep(4)">
-                                        Next →
-                                    </button>
                                 </div>
                             </div>
-                            
-                            <!-- Step 4: Review & Submit -->
-                            <div class="step-content" data-step="4">
-                                <div class="mb-6">
-                                    <h5 class="font-bold text-lg mb-2">Step 4: Review & Get Your Link</h5>
-                                    <p class="text-sm text-secondary mb-6">Almost there! Review your choices and get your tracking link. 🎯</p>
-                                </div>
-                                <div id="estimated-points" class="p-6 bg-gradient-to-r from-purple-900/20 to-pink-900/20 border-2 border-accent-primary rounded-xl mb-6">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <div class="text-base font-semibold text-secondary">Estimated Points:</div>
-                                        <div class="text-3xl font-extrabold-heading gradient-text" id="points-preview">100</div>
-                                    </div>
-                                    <div class="text-sm text-secondary space-y-2">
-                                        <div class="flex items-center gap-2">
-                                            <span>✓</span>
-                                            <span>Base participation: 100</span>
+                        </div>
+                        
+                        <!-- Review & Submit (Always Visible) -->
+                        <div class="mt-6 pt-6 border-t border-border-color">
+                            <div id="estimated-points" class="p-6 bg-gradient-to-r from-purple-900/20 to-pink-900/20 border-2 border-accent-primary rounded-xl mb-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="text-base font-semibold text-secondary">Estimated Rewards:</div>
+                                    <div class="flex items-center gap-6">
+                                        <div class="text-right">
+                                            <div class="text-3xl font-extrabold-heading gradient-text" id="points-preview">100</div>
+                                            <div class="text-base font-semibold text-secondary">Points</div>
                                         </div>
-                                        <div id="points-breakdown-text"></div>
-                                        <div class="mt-4 pt-4 border-t border-accent-primary/30">
-                                            <div class="font-semibold mb-1">Plus click rewards:</div>
-                                            <div class="text-xs">10-15 points per click (tiered system)</div>
+                                        <div class="text-right">
+                                            <div class="text-3xl font-extrabold-heading gradient-text" id="spins-preview">0</div>
+                                            <div class="text-base font-semibold text-secondary">Spins</div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="step-navigation">
-                                    <button class="step-button bg-gray-600 text-white hover:opacity-90" onclick="goToStep(3)">
-                                        ← Back
-                                    </button>
-                                    <button id="participate-button" class="step-button campaign-join-button text-white font-bold">
-                                        Submit & Get My Link 🚀
-                                    </button>
+                                <div class="text-sm text-secondary space-y-2">
+                                    <div class="flex items-center gap-2">
+                                        <span>✓</span>
+                                        <span>Base participation: 100</span>
+                                    </div>
+                                    <div id="points-breakdown-text"></div>
+                                    <div class="mt-4 pt-4 border-t border-accent-primary/30">
+                                        <div class="font-semibold mb-1">Plus click rewards:</div>
+                                        <div class="text-xs">10-15 points per click (tiered system)</div>
+                                    </div>
                                 </div>
                             </div>
+                            <button id="participate-button" class="campaign-join-button text-white font-bold py-3 px-6 text-base md:text-lg w-full rounded-xl">
+                                Submit & Get My Link 🚀
+                            </button>
                         </div>
                     </div>`;
             }
@@ -7874,7 +7836,15 @@
                                         <div>✓ Cross-platform: +50</div>
                                     </div>
                                 </div>
-                                <button id="participate-button" class="campaign-join-button text-white font-bold py-3 px-6 text-base md:text-lg w-full rounded-xl">
+                                <button id="participate-button" class="campaign-join-button text-white font-bold py-3 px-6 text-base md:text-lg w-full rounded-xl" onclick="
+                                    const rewardCard = this.closest('.reward-card');
+                                    const formContainer = document.getElementById('participation-form-container');
+                                    if (rewardCard && formContainer) {
+                                        rewardCard.classList.add('hidden');
+                                        formContainer.classList.remove('hidden');
+                                        formContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                    }
+                                ">
                                     Join Campaign & Get My Link 🚀
                                 </button>
                                 <p class="text-xs text-center text-secondary mt-4">⏱️ Takes less than 2 minutes • 🎯 Get your link instantly</p>
@@ -8238,21 +8208,40 @@
                 colleaguesTagged: 0
             };
             
+            // Calculate spins to award
+            let spinsToAward = 0;
+            if (copyType === 'original') {
+                spinsToAward = 2;
+            } else if (copyType === 'customized') {
+                spinsToAward = 1;
+            }
+            if (hasStory) {
+                spinsToAward += 1;
+            }
+            if (sharedOn.length > 1) {
+                spinsToAward += 1;
+            }
+            
             const points = calculateParticipationPoints(participation);
             const previewEl = document.getElementById('points-preview');
+            const spinsPreviewEl = document.getElementById('spins-preview');
             const breakdownEl = document.getElementById('points-breakdown-text');
             
             if (previewEl) {
                 previewEl.textContent = points;
             }
             
+            if (spinsPreviewEl) {
+                spinsPreviewEl.textContent = spinsToAward;
+            }
+            
             if (breakdownEl) {
                 const breakdown = [];
-                if (copyType === 'customized') breakdown.push('Custom copy: +50');
-                if (copyType === 'original') breakdown.push('Original copy: +100');
-                if (hasStory) breakdown.push('Story: +75');
-                if (hasCTA) breakdown.push('CTA: +25');
-                if (sharedOn.length > 1) breakdown.push('Cross-platform: +50');
+                if (copyType === 'customized') breakdown.push('Custom copy: +50 pts, +1 Spin');
+                if (copyType === 'original') breakdown.push('Original copy: +100 pts, +2 Spins');
+                if (hasStory) breakdown.push('Story: +75 pts, +1 Spin');
+                if (hasCTA) breakdown.push('CTA: +25 pts');
+                if (sharedOn.length > 1) breakdown.push('Cross-platform: +50 pts, +1 Spin');
                 
                 breakdownEl.innerHTML = breakdown.length > 0 
                     ? breakdown.join('<br>')
@@ -8641,6 +8630,25 @@
                 isFirstParticipant: !appState.crew.some(c => c.participatedDrops.includes(activeDrop.id))
             };
             
+            // --- New Spin Calculation Logic ---
+            let spinsToAward = 0;
+            if (copyType === 'original') {
+                spinsToAward += 2;
+            } else if (copyType === 'customized') {
+                spinsToAward += 1;
+            }
+            if (hasStory) {
+                spinsToAward += 1;
+            }
+            if (sharedOn.length > 1) {
+                spinsToAward += 1; // Cross-platform bonus
+            }
+            
+            if (spinsToAward > 0) {
+                appState.currentUser.wheelSpins = (appState.currentUser.wheelSpins || 0) + spinsToAward;
+            }
+            // --- End New Logic ---
+            
             const points = calculateParticipationPoints(participation);
             participation.points = points;
             
@@ -8698,7 +8706,11 @@
                 }
                 
                 renderAll();
-                showToast(`You're in! ${points} points earned! 🎉`, 'success');
+                let toastMessage = `You're in! ${points} points earned! 🎉`;
+                if (spinsToAward > 0) {
+                    toastMessage = `You're in! ${points} points & ${spinsToAward} Spin${spinsToAward > 1 ? 's' : ''} earned! 🎉`;
+                }
+                showToast(toastMessage, 'success');
                 
                 // Show success message with next steps
                 setTimeout(() => {
@@ -11022,8 +11034,18 @@
                 statusEl.className = 'mt-2 text-sm hidden';
             }
             
-            // Reset to step 1
+            // Reset to step 1 and hide steps 2-4
             goToCampaignStep(1);
+            
+            // Hide steps 2, 3, and 4 by default
+            setTimeout(function() {
+                const step2 = document.getElementById('campaign-step-2');
+                const step3 = document.getElementById('campaign-step-3');
+                const step4 = document.getElementById('campaign-step-4');
+                if (step2) step2.style.display = 'none';
+                if (step3) step3.style.display = 'none';
+                if (step4) step4.style.display = 'none';
+            }, 100);
             
             if (modal) {
                 modal.classList.add('active');
@@ -11220,10 +11242,15 @@
                         }
                     }, 100);
                     
-                    // Auto-advance to step 2 after successful import
-                    setTimeout(function() {
-                        goToCampaignStep(2);
-                    }, 500);
+                    // Generate AI assistance and auto-advance to step 2
+                    if (description || firstParagraph) {
+                        await generateAIAssistance(title, description || firstParagraph, firstParagraph);
+                    } else {
+                        // If no description, still advance to step 2
+                        setTimeout(function() {
+                            goToCampaignStep(2);
+                        }, 500);
+                    }
                 } else {
                     // No fields were populated, but fetch succeeded
                     if (statusEl) {
@@ -11272,6 +11299,85 @@
             }
         };
 
+        // Generate AI assistance for campaign creation
+        async function generateAIAssistance(title, description, firstParagraph) {
+            try {
+                const instructionsField = document.getElementById('campaign-instructions');
+                const contentOptionsField = document.getElementById('campaign-content-options');
+                
+                if (!instructionsField || !contentOptionsField) {
+                    logger.warn('Campaign form fields not found for AI assistance');
+                    return;
+                }
+                
+                // Show loading state
+                const statusEl = document.getElementById('fetch-url-status');
+                if (statusEl) {
+                    statusEl.textContent = '🤖 Generating AI campaign suggestions...';
+                    statusEl.className = 'mt-2 text-sm text-info';
+                }
+                
+                // Use Gemini API to generate campaign instructions and content options
+                // For now, we'll use a simplified approach that generates based on the description
+                // In production, this would call the Gemini API
+                
+                // Generate campaign instructions
+                const instructions = [
+                    "1. Review this AI-drafted post and add your personal touch",
+                    "2. Choose one of the content options below or write your own",
+                    "3. Download the visual asset and add it to your post",
+                    "4. Get your unique tracking link and share on LinkedIn or Twitter",
+                    "5. Watch your points and spins grow as clicks come in!"
+                ];
+                
+                // Generate content options from description
+                const contentText = description || firstParagraph || '';
+                const contentOptions = [];
+                
+                if (contentText) {
+                    // Create variations of the content
+                    const truncated = contentText.substring(0, 150);
+                    contentOptions.push(
+                        `Just launched: ${truncated}... Check it out!`,
+                        `Excited to share: ${truncated}... What do you think?`,
+                        `This is a game-changer: ${truncated}... Can't wait to see the impact!`
+                    );
+                } else {
+                    // Fallback options
+                    contentOptions.push(
+                        "Just launched something I'm really proud of. This is going to make a real difference for our team. Would love your thoughts!",
+                        "The future of work just got a major upgrade. Excited to see how this transforms our workflow. Check it out!",
+                        "After months of development, we're finally ready to share this. It's going to change everything. What do you think?"
+                    );
+                }
+                
+                // Pre-populate form fields
+                instructionsField.value = instructions.join('\n');
+                contentOptionsField.value = contentOptions.join('\n');
+                
+                // Update status
+                if (statusEl) {
+                    statusEl.textContent = '✓ AI campaign suggestions generated!';
+                    statusEl.className = 'mt-2 text-sm text-success';
+                }
+                
+                showToast('AI campaign suggestions generated!', 'success');
+                
+                // Auto-advance to step 2 (Review & Edit)
+                setTimeout(function() {
+                    goToCampaignStep(2);
+                }, 500);
+                
+            } catch (error) {
+                logger.error('Error generating AI assistance:', error);
+                showToast('AI generation failed, but you can still fill the form manually', 'warning');
+                // Still advance to step 2
+                setTimeout(function() {
+                    goToCampaignStep(2);
+                }, 500);
+            }
+        }
+
         window.showEditCampaignModal = function(dropId) {
             const drop = appState.drops.find(function(d) { return d.id === dropId; });
             if (!drop) return;
@@ -11316,7 +11422,15 @@
                 const stepEl = document.getElementById('campaign-step-' + i);
                 const wizardStepEl = document.querySelector('[data-wizard-step="' + i + '"]');
                 
-                if (stepEl) stepEl.classList.remove('active');
+                if (stepEl) {
+                    stepEl.classList.remove('active');
+                    // Show step if it's the current one or a previous one
+                    if (i <= stepNum) {
+                        stepEl.style.display = '';
+                    } else {
+                        stepEl.style.display = 'none';
+                    }
+                }
                 if (wizardStepEl) {
                     wizardStepEl.classList.remove('active', 'completed');
                 }
@@ -11326,7 +11440,10 @@
             const currentStepEl = document.getElementById('campaign-step-' + stepNum);
             const currentWizardStepEl = document.querySelector('[data-wizard-step="' + stepNum + '"]');
             
-            if (currentStepEl) currentStepEl.classList.add('active');
+            if (currentStepEl) {
+                currentStepEl.classList.add('active');
+                currentStepEl.style.display = '';
+            }
             if (currentWizardStepEl) currentWizardStepEl.classList.add('active');
             
             // Mark previous steps as completed
@@ -12532,12 +12649,10 @@
                                     <div class="text-xl font-bold accent-text">${currentPoints.toLocaleString()}</div>
                                     <div class="text-xs text-secondary">Points</div>
                                 </div>
-                                ${availableSpins > 0 ? `
-                                    <div class="text-right">
-                                        <div class="text-xl font-bold accent-text">${availableSpins}</div>
-                                        <div class="text-xs text-secondary">Spins</div>
-                                    </div>
-                                ` : ''}
+                                <div class="text-right">
+                                    <div class="text-xl font-bold accent-text">${availableSpins}</div>
+                                    <div class="text-xs text-secondary">Spins</div>
+                                </div>
                                 <button onclick="if (window.closePrizeModal) window.closePrizeModal();" class="text-2xl text-secondary hover:text-text-primary transition-colors">&times;</button>
                             </div>
                         </div>
