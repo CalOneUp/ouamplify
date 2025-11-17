@@ -8016,18 +8016,16 @@
                             if (formContainer && formContainer.classList.contains('hidden')) {
                                 formContainer.classList.remove('hidden');
                                 formContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                                // Reset to step 1
-                                goToStep(1);
                                 e.preventDefault();
                                 return;
                             }
                         });
                     }
                     
-                    // Submit button in step 4
-                    const step4SubmitBtn = document.querySelector('.step-content[data-step="4"] #participate-button');
-                    if (step4SubmitBtn) {
-                        step4SubmitBtn.addEventListener('click', function(e) {
+                    // Submit button in simplified form
+                    const formSubmitBtn = document.querySelector('#participation-form-container #participate-button');
+                    if (formSubmitBtn) {
+                        formSubmitBtn.addEventListener('click', function(e) {
                             e.preventDefault();
                             handleParticipation();
                         });
@@ -8039,7 +8037,6 @@
                         if (form) {
                             form.addEventListener('change', updatePointsPreview);
                             updatePointsPreview();
-                            updateStepVisibility();
                         }
                     }, 100);
                 } else {
@@ -8089,31 +8086,10 @@
             }
         }
 
-        // Step navigation functions
+        // Step navigation functions (kept for backward compatibility, but simplified form doesn't use steps)
         window.goToStep = function(targetStepNum) {
-            // Hide all step contents
-            document.querySelectorAll('.step-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            // Show target step
-            const targetStep = document.querySelector(`.step-content[data-step="${targetStepNum}"]`);
-            if (targetStep) {
-                targetStep.classList.add('active');
-            }
-            
-            // Update step indicators
-            document.querySelectorAll('.step').forEach((stepEl) => {
-                const stepNumber = parseInt(stepEl.dataset.step);
-                stepEl.classList.remove('active', 'completed');
-                if (stepNumber < targetStepNum) {
-                    stepEl.classList.add('completed');
-                } else if (stepNumber === targetStepNum) {
-                    stepEl.classList.add('active');
-                }
-            });
-            
-            // Scroll to top of form
+            // Simplified form doesn't use steps - this function is kept for compatibility
+            // Scroll to top of form if needed
             const formContainer = document.getElementById('participation-form-container');
             if (formContainer) {
                 formContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -8121,21 +8097,8 @@
         };
 
         window.updateStepVisibility = function() {
-            const copyType = document.querySelector('input[name="copyType"]:checked')?.value || 'provided';
-            const step2 = document.querySelector('.step-content[data-step="2"]');
-            const step1NextBtn = document.querySelector('.step-content[data-step="1"] .step-navigation button:last-child');
-            
-            if (copyType === 'provided') {
-                // Skip step 2 if using provided copy - go directly to step 3
-                if (step1NextBtn) {
-                    step1NextBtn.onclick = () => goToStep(3);
-                }
-            } else {
-                // Show step 2 for customized/original
-                if (step1NextBtn) {
-                    step1NextBtn.onclick = () => goToStep(2);
-                }
-            }
+            // Simplified form doesn't use steps - this function is kept for compatibility
+            // No-op for simplified form
         };
 
         // Global function for copy type change
@@ -8158,7 +8121,6 @@
             }
             updateCopyPreview();
             updatePointsPreview();
-            updateStepVisibility();
         };
 
         function updateCopyPreview() {

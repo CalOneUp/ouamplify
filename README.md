@@ -6,11 +6,13 @@ A comprehensive gamification platform for social media campaigns with user authe
 
 - 🎮 **Gamification System**: Points, levels, achievements, and leaderboards
 - 🎁 **Rewards**: Prize wheel, battle pass, and reward redemption
+- 🎰 **Wheel Spins Economy**: Earn spins through creative participation (original copy, personal stories, cross-platform sharing)
 - 📊 **Analytics**: Real-time campaign tracking and user statistics
 - 👥 **User Management**: Authentication, profiles, and team management
-- 🎯 **Campaign Management**: Create and manage social media campaigns
+- 🎯 **Campaign Management**: AI-assisted campaign creation with simplified workflows
 - 🏆 **Leaderboards**: Competitive rankings and department-based views
 - 🔔 **Notifications**: Achievement unlocks and activity feed
+- 🎭 **Player Personas**: Tailored UI experience based on player type (Achiever, Explorer, Socializer, Killer)
 
 ## Tech Stack
 
@@ -84,9 +86,44 @@ social-thunderclap/
 └── .gitignore
 ```
 
+## Recent Updates
+
+### Effort-to-Chance Refactor (Experimental Branch)
+
+The `experimental/effort-to-chance-refactor` branch introduces:
+
+- **Wheel Spins Economy**: Users earn spins through creative participation:
+  - Write Original Copy: +2 Spins
+  - Customize Copy: +1 Spin
+  - Add Personal Story: +1 Spin
+  - Share on 2+ Platforms: +1 Spin
+
+- **Simplified Participation Form**: Streamlined single-page form replaces multi-step wizard for faster participation
+
+- **AI-Assisted Campaign Creation**: Admin workflow now includes AI-generated campaign instructions and content options
+
+- **Enhanced Player Personas**: Sidebar displays detailed persona cards explaining how the UI is tailored to each player type
+
 ## Development Guidelines
 
 See [DEVELOPMENT_GUIDELINES.md](./DEVELOPMENT_GUIDELINES.md) for coding standards and best practices.
+
+## Key Functions
+
+### User Participation
+- `handleParticipation()` - Processes user participation in campaigns
+- `handleCopyTypeChange()` - Manages copy type selection (provided/customized/original)
+- `updatePointsPreview()` - Updates real-time points and spins preview
+
+### Campaign Management
+- `fetchWebpageMetadata()` - Imports campaign data from webpage URLs
+- `generateAIAssistance()` - Generates AI-powered campaign suggestions
+- `goToCampaignStep()` - Navigates campaign creation wizard
+
+### UI Navigation
+- `switchView()` - Changes main application view
+- `showRewardsMenu()` - Opens rewards menu (Shop, Wheel, Battle Pass)
+- `renderRoster()` - Renders leaderboard with category filtering
 
 ## License
 
